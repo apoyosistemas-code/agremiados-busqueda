@@ -1,0 +1,248 @@
+/* ================== VARIABLES Y BASE ================== */
+:root{
+  --bg:#ffffff;
+  --green-900:#0a2a1f;
+  --green-800:#0e3b2b;
+  --green-700:#12503a;
+  --green-600:#16604a;
+  --gold:#d9a23e;
+  --gold-600:#b7862f;
+  --text:#1a1a1a;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --card:#ffffff;
+  --radius:14px;
+  --shadow:0 10px 24px rgba(0,0,0,.08);
+}
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body{
+  margin:0; font-family:'Poppins',sans-serif;
+  background:var(--bg); color:var(--text);
+}
+
+/* Layout: footer pegado abajo */
+html, body { height: 100%; }
+body.home, body.results-compact {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.hero-wrap { flex: 1 0 auto; }
+.hero-footer { margin-top: auto; }
+
+/* Seguridad imágenes */
+img { max-width: 100%; height: auto; }
+
+
+/* ================== BOTONES ================== */
+.btn{
+  border:none; border-radius:10px; padding:12px 16px;
+  font-weight:700; cursor:pointer; text-decoration:none;
+  display:inline-flex; align-items:center; justify-content:center;
+  transition:background .2s ease, box-shadow .2s ease, transform .02s ease;
+}
+.btn-primary{ background:var(--gold); color:#fff; }
+.btn-primary:hover{ background:var(--gold-600); color:#fff; box-shadow:0 10px 20px rgba(0,0,0,.07); }
+.btn-primary:active{ transform:translateY(1px); }
+.btn-link{ background:transparent; color:var(--green-700); text-decoration:none; font-weight:600 }
+.btn-disabled{ background:#cfd3d8; color:#4b5563; cursor:not-allowed }
+
+/* ================== LAYOUT CONTENIDO ================== */
+.wrap{ max-width:1280px; margin:24px auto; padding:0 20px }
+
+/* ================== PORTADA (HOME) ================== */
+body.home{ background:#f4f7fa }
+.hero-wrap{
+  min-height:78vh; display:flex; align-items:center; justify-content:center;
+  padding:40px 16px;
+}
+.hero{ text-align:center; max-width:980px; width:100%; margin:0 auto }
+.hero-logo{ width:320px; height:auto; object-fit:contain; display:block; margin:10px auto 14px }
+.hero-title{ margin:8px 0 6px; font-size:clamp(24px,4vw,36px); color:var(--green-800); font-weight:700 }
+.hero-subtitle{ color:var(--muted); margin-bottom:22px }
+
+/* Formulario principal */
+.hero-form{
+  display:grid; grid-template-columns:1fr auto; gap:10px; max-width:980px; margin:0 auto;
+  background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:var(--shadow);
+}
+.hero-input{
+  display:flex; align-items:center; background:#fff; border:1px solid var(--line);
+  border-radius:12px; padding:0 12px; height:48px; position:relative;
+}
+.hero-input-prefix{ color:#64748b; font-weight:700; margin-right:8px }
+.hero-input input{
+  width:100%; height:44px; border:none; outline:none; font-size:16px; font-family:'Poppins',sans-serif;
+}
+
+/* ================== TOGGLE DE MODOS (VERDE INSTITUCIONAL) ================== */
+/* Toggle de modos (dorado como el botón Buscar) */
+.search-toggle{
+  display:flex; gap:10px; justify-content:center; margin:8px auto 14px;
+}
+.toggle-btn{
+  border:1px solid var(--line);
+  background:#fff;
+  color:#111827;
+  padding:8px 16px;
+  border-radius:999px;
+  cursor:pointer;
+  font-weight:600;
+  transition:background .2s ease, color .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.toggle-btn:hover{
+  border-color: var(--gold);
+  box-shadow: 0 4px 10px rgba(0,0,0,.06);
+}
+.toggle-btn.active{
+  background: var(--gold);
+  color:#fff;
+  border-color: var(--gold);
+}
+
+/* ================== AUTOCOMPLETE MODERNO ================== */
+/* Autocomplete moderno */
+.ac-wrap{ position:relative; width:100%; }
+.ac-list{
+  position:absolute; left:0; right:0;
+  top: calc(100% + 8px);
+  z-index: 1000;               /* <— para que nunca quede detrás */
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow: 0 14px 28px rgba(0,0,0,.10);
+  max-height: 320px;
+  overflow:auto;
+}
+.ac-item{
+  width:100%;
+  border:none; background:#fff; cursor:pointer;
+  padding:12px 14px; text-align:left;
+  display:grid; grid-template-columns: 1fr auto; row-gap:4px;
+}
+.ac-item + .ac-item{ border-top:1px solid #f1f3f5; }
+.ac-item:hover{ background:#f8fafc; }
+.ac-title{ font-weight:600; color:#0f172a; grid-column:1/-1; }
+.ac-sub{ color:#64748b; font-size:12.5px; }
+.ac-pill{ background:#fff1d6; color:#7a5a13; font-size:12px; padding:2px 8px; border-radius:999px; }
+.ac-mark{ background:#fff3c4; padding:0 2px; border-radius:3px; }
+
+
+/* ================== RESULTADOS (TARJETAS) ================== */
+.results h1{ margin:0 0 8px; color:var(--green-800) }
+.empty-box{ background:#f9fafb; border:1px solid var(--line); border-radius:12px; padding:24px; text-align:center }
+
+.cards-grid{
+  display:grid; justify-content:center;
+  grid-template-columns:repeat(auto-fit, minmax(360px, 900px));
+  gap:18px;
+}
+.card2{
+  background:var(--card); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
+  overflow:hidden; width:100%;
+}
+.card2-header{
+  background:linear-gradient(180deg, #f8fafc, #ffffff);
+  border-bottom:1px solid var(--line);
+  padding:18px 16px;
+}
+.badge{ background:#9ca3af; color:#fff; padding:4px 10px; border-radius:999px; font-size:12px }
+.badge.ok{ background:#16a34a } .badge.warn{ background:#f59e0b } .badge.danger{ background:#dc2626 }
+.card2-header h2{ margin:10px 0 4px; color:var(--green-800) }
+.card2-header .name{ margin:0; color:#111827; font-weight:600 }
+
+/* Detalles */
+.details{ display:grid; gap:10px; padding:16px }
+.row{
+  display:grid; grid-template-columns:220px 1fr;
+  gap:14px; padding-bottom:10px; border-bottom:1px dashed #eef1f4;
+}
+.row:last-child{ border-bottom:none }
+.row label{ color:var(--muted); font-weight:600 }
+.row span{
+  color:#111827; min-height:20px; white-space:pre-wrap;
+  overflow-wrap:anywhere; word-break:break-word; line-height:1.4;
+}
+
+/* Acciones y paginación */
+.actions2{ display:flex; gap:12px; padding:16px; border-top:1px solid var(--line); align-items:center; flex-wrap:wrap }
+.hint{ font-size:12px; color:var(--muted) }
+.pager{ margin-top:20px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center }
+.page{ padding:6px 10px; border-radius:8px; background:#f3f4f6; color:#111827; text-decoration:none; border:1px solid var(--line) }
+.page.active{ background:var(--gold); color:#1a1a1a; border-color:var(--gold) }
+.footer{ margin:30px 0; text-align:center; color:var(--muted) }
+
+/* ================== “RESULTADOS COMPACTOS” ================== */
+/* usar body class="home results-compact" SOLO en buscar.php */
+body.results-compact .hero-wrap{ min-height:auto; padding:10px 16px 0 }
+body.results-compact .hero-logo{ width:300px; margin:6px auto 4px }
+body.results-compact .hero-title{ margin:4px 0 6px; font-size:clamp(22px,3.2vw,34px) }
+body.results-compact .hero-subtitle{ margin:0 0 8px }
+body.results-compact .wrap{ margin-top:8px }
+
+/* ================== ANIMACIONES ================== */
+.hero{
+  opacity:0; transform:translateY(-6px);
+  transition:opacity .55s ease, transform .55s ease;
+}
+.hero.in{ opacity:1; transform:none; }
+
+.card2{
+  opacity:0; transform:translateY(8px);
+  transition:opacity .4s ease, transform .4s ease, box-shadow .2s ease;
+}
+.card2.in{ opacity:1; transform:none; }
+.card2:hover{ box-shadow:0 14px 28px rgba(0,0,0,.10); }
+
+/* ================== RESPONSIVE ================== */
+@media (max-width:900px){ .row{ grid-template-columns:180px 1fr } }
+
+@media (max-width:720px){
+  .hero-form{ grid-template-columns:1fr; padding:12px }
+  .btn.btn-primary{ width:100%; height:48px }
+  .hero-input{ height:50px }
+}
+
+@media (max-width:640px){
+  .wrap{ padding:0 14px }
+  .cards-grid{ grid-template-columns:1fr }
+  .row{ grid-template-columns:1fr }
+  .row label{ margin-bottom:4px }
+  .actions2 .btn{ width:100% }
+}
+
+/* ========== MOBILE ULTRA COMPACTO (≤480px) ========== */
+@media (max-width:480px){
+  /* Hero más compacto */
+  body.home .hero-wrap{ padding:20px 12px; }
+  .hero-logo{ width:240px; margin:4px auto 6px; }
+  .hero-title{ font-size:22px; margin:2px 0 4px; }
+  .hero-subtitle{ margin-bottom:12px; font-size:13px; }
+  .hero-form{ padding:8px; border-radius:12px; gap:8px; }
+  .hero-input{ height:44px; padding:0 10px; }
+  .hero-input input{ height:40px; font-size:15px; }
+  .btn{ padding:10px 14px; border-radius:9px; font-size:14px; }
+
+  /* Tarjeta y filas más densas */
+  .wrap{ padding:0 10px; margin:16px auto; }
+  .cards-grid{ gap:12px; }
+  .card2-header{ padding:14px 12px; }
+  .card2-header h2{ margin:6px 0 2px; font-size:18px; }
+  .card2-header .name{ font-size:13.5px; }
+  .details{ padding:12px; gap:8px; }
+  .row{ grid-template-columns:1fr; gap:6px; padding-bottom:8px; }
+  .row label{ font-size:12.5px; }
+  .row span{ font-size:13.5px; line-height:1.35; }
+  .actions2{ padding:12px; gap:10px; }
+  .actions2 .btn{ width:100%; }
+  .footer{ margin:18px 0; font-size:12.5px; }
+}
+
+/* Extra mini (≤360px) */
+@media (max-width:360px){
+  .hero-logo{ width:210px; }
+  .btn{ padding:9px 12px; font-size:13.5px; }
+  .row label{ font-size:12px; }
+  .row span{ font-size:13px; }
+}
