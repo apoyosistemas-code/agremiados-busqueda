@@ -184,11 +184,68 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- Botón flotante a la esquina (usa estilos .editor-fab del CSS) -->
-<a href="editor.php" class="editor-fab" title="Modo Editor">
-  <span class="editor-fab__icon">🛠️</span>
-  <span class="editor-fab__label">Modo Editor</span>
-</a>
+<style>
+  .fab-container {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-end;
+  }
+  .fab-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    padding: 12px 20px 12px 16px; /* Ajuste de padding */
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    text-decoration: none;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    font-size: 0.95rem;
+  }
+  .fab-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  }
+  
+  /* Iconos */
+  .fab-btn i {
+    font-size: 20px;
+    width: 24px;
+    display: flex; justify-content: center;
+  }
+
+  /* Estilo Cumpleaños (Dorado) */
+  .btn-bday { color: #d9a23e; } 
+  .btn-bday:hover { color: #b7862f; border-color: #d9a23e; }
+
+  /* Estilo Editor (Verde Corporativo) */
+  .btn-editor { color: #12503a; }
+  .btn-editor:hover { color: #0a2a1f; border-color: #12503a; }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="fab-container">
+  
+  <a href="cumpleanos.php" class="fab-btn btn-bday" title="Ver Cumpleaños">
+    <i class="fa-solid fa-cake-candles"></i>
+    <span>Lista de Cumpleaños</span>
+  </a>
+
+  <a href="editor.php" class="fab-btn btn-editor" title="Ir a Modo Editor">
+    <i class="fa-solid fa-screwdriver-wrench"></i>
+    <span>Modo Editor</span>
+  </a>
+
+</div>
 
 </body>
 </html>

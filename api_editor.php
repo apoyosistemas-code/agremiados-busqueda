@@ -1,151 +1,147 @@
 <?php
-// api_editor.php
+// api_editor.php - FINAL V7 (Soporte para Límites variables y Ver Todos)
 require_once "conexion.php";
+
+// Anti-Caché
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 header('Content-Type: application/json; charset=utf-8');
 
 function json_ok($arr = []){ echo json_encode(['ok'=>true] + $arr); exit; }
 function json_err($msg){ http_response_code(400); echo json_encode(['ok'=>false,'error'=>$msg]); exit; }
 
-/** Obtiene y cachea columnas válidas (whitelist) */
 function get_columns(mysqli $conn){
   static $cols = null;
   if ($cols !== null) return $cols;
-
   $cols = [];
   $res = $conn->query("DESCRIBE agremiados");
-  while ($row = $res->fetch_assoc()){
-    $cols[] = $row['Field'];
-  }
-  // id primero, si existe
-  if (in_array('id', $cols)) {
-    $cols = array_values(array_unique(array_merge(['id'], $cols)));
-  }
+  while ($row = $res->fetch_assoc()){ $cols[] = $row['Field']; }
   return $cols;
-}
-
-/** Construye una lista segura de columnas escapadas con backticks */
-function backticks_cols(array $cols){
-  return implode(",", array_map(fn($c)=>"`$c`", $cols));
 }
 
 $action = $_GET['action'] ?? $_POST['action'] ?? 'list';
 
 try {
-  if ($action === 'columns') {
-    $cols = get_columns($conn);
-    json_ok(['columns'=>$cols]);
-  }
-
+  // --- LISTAR ---
   if ($action === 'list') {
     $page = max(1, intval($_GET['page'] ?? 1));
-    $perPage = min(100, max(1, intval($_GET['perPage'] ?? 20)));
-    $off = ($page-1)*$perPage;
+    
+    // LÓGICA DE LÍMITE (Paginación)
+    $limitParam = $_GET['limit'] ?? 50; // Por defecto 50
+    
+    if ($limitParam === 'all') {
+        $limit = 1000000; // Un número muy alto para traer "todo"
+        $page = 1; // Si es todo, solo hay 1 página
+    } else {
+        $limit = intval($limitParam);
+        if($limit < 1) $limit = 50;
+    }
+
+    $offset = ($page - 1) * $limit;
     $q = trim($_GET['q'] ?? '');
 
-    $cols = get_columns($conn);
-    $colsSql = backticks_cols($cols);
-
-    // Filtros simples: colegiatura, DNI, nombre
-    $where = "1";
+    $where = "1=1";
     $types = "";
     $params = [];
 
-    if ($q !== "") {
-      $where = "(COLEGIATURA LIKE CONCAT('%', ?, '%') OR DNI LIKE CONCAT('%', ?, '%') OR NOMBRE_DEL_AGREMIADO LIKE CONCAT('%', ?, '%'))";
+    if ($q !== '') {
+      $where .= " AND (COLEGIATURA LIKE ? OR DNI LIKE ? OR NOMBRE_DEL_AGREMIADO LIKE ?)";
+      $wild = "%$q%";
       $types = "sss";
-      $params = [$q, $q, $q];
+      $params = [$wild, $wild, $wild];
     }
 
-    // total
-    $sqlCount = "SELECT COUNT(*) AS c FROM agremiados WHERE $where";
+    // 1. Contar total
+    $sqlCount = "SELECT COUNT(*) as total FROM agremiados WHERE $where";
     $stmt = $conn->prepare($sqlCount);
-    if ($types !== "") $stmt->bind_param($types, ...$params);
+    if($types) $stmt->bind_param($types, ...$params);
     $stmt->execute();
-    $total = $stmt->get_result()->fetch_assoc()['c'] ?? 0;
+    $total = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
     $stmt->close();
 
-    // page
-    $sql = "SELECT $colsSql FROM agremiados WHERE $where ORDER BY COLEGIATURA+0 ASC LIMIT ? OFFSET ?";
-    $stmt = $conn->prepare($sql);
-    if ($types !== "") {
-      $types2 = $types . "ii";
-      $params2 = array_merge($params, [$perPage, $off]);
-      $stmt->bind_param($types2, ...$params2);
+    // 2. Traer datos
+    $sqlData = "SELECT * FROM agremiados WHERE $where ORDER BY (COLEGIATURA+0) ASC LIMIT ? OFFSET ?";
+    
+    $stmt = $conn->prepare($sqlData);
+    if($types) {
+        $types .= "ii";
+        $params[] = $limit;
+        $params[] = $offset;
+        $stmt->bind_param($types, ...$params);
     } else {
-      $stmt->bind_param("ii", $perPage, $off);
+        $stmt->bind_param("ii", $limit, $offset);
     }
+    
     $stmt->execute();
     $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
 
-    // Normaliza nulls (dejar como null; el front los dibuja vacío)
-    json_ok(['rows'=>$rows,'total'=>intval($total)]);
+    json_ok([
+      'rows' => $rows,
+      'total' => intval($total),
+      'page' => $page,
+      'limit' => $limitParam, // Devolvemos el límite usado para que el front sepa
+      'pages' => ($limitParam === 'all') ? 1 : ceil($total / $limit)
+    ]);
   }
 
-  if ($action === 'update') {
-    $id  = intval($_POST['id'] ?? 0);
-    $col = $_POST['col'] ?? '';
-    if ($id <= 0) json_err("ID inválido");
-    if ($col === '') json_err("Columna requerida");
+  // --- GUARDAR / EDITAR ---
+  if ($action === 'insert' || $action === 'update') {
+      $json = $_POST['json'] ?? '{}';
+      $data = json_decode($json, true);
+      if (!is_array($data)) json_err("Datos inválidos");
 
-    $cols = get_columns($conn);
-    if (!in_array($col, $cols, true)) json_err("Columna no permitida");
+      $nullIfEmpty = ($_POST['nullIfEmpty'] ?? '') === '1';
+      $validCols = get_columns($conn); 
 
-    $val = $_POST['val'] ?? '';
-    // vacío ⇒ NULL
-    if ($val === '') {
-      $sql = "UPDATE agremiados SET `$col` = NULL WHERE id = ?";
-      $stmt = $conn->prepare($sql);
-      $stmt->bind_param("i", $id);
-    } else {
-      $sql = "UPDATE agremiados SET `$col` = ? WHERE id = ?";
-      $stmt = $conn->prepare($sql);
-      $stmt->bind_param("si", $val, $id);
-    }
-    $stmt->execute();
-    $stmt->close();
-    json_ok();
-  }
+      $colsDb = [];
+      $bindParams = [];
+      $types = "";
 
-  if ($action === 'insert') {
-    $nullIfEmpty = ($_POST['nullIfEmpty'] ?? '') === '1';
-    $json = $_POST['json'] ?? '';
-    if ($json === '') json_err("Faltan datos");
+      foreach ($data as $k => $v) {
+          if (!in_array($k, $validCols, true)) continue; 
+          if ($k === 'id') continue; 
 
-    $data = json_decode($json, true);
-    if (!is_array($data)) json_err("JSON inválido");
-
-    $colsAll = get_columns($conn);
-    // no permitir setear id manual
-    $colsAllowed = array_values(array_filter($colsAll, fn($c)=>$c!=='id'));
-
-    $cols = [];
-    $vals = [];
-    $types = "";
-    foreach ($data as $k=>$v) {
-      if (!in_array($k, $colsAllowed, true)) continue;
-      if ($nullIfEmpty && ($v==='' || $v===null)) {
-        $cols[] = "`$k`";
-        $vals[] = "NULL";
-        continue;
+          $colsDb[] = "`$k` = ?";
+          
+          if ($nullIfEmpty && trim((string)$v) === '') {
+             $bindParams[] = null;
+             $types .= "s";
+          } else {
+             $bindParams[] = $v;
+             $types .= "s";
+          }
       }
-      $cols[] = "`$k`";
-      $vals[] = "?";
-      $types .= "s";
-      $params[] = $v;
-    }
-    if (empty($cols)) json_err("Sin columnas válidas");
 
-    $sql = "INSERT INTO agremiados (".implode(',', $cols).") VALUES (".implode(',', $vals).")";
-    $stmt = $conn->prepare($sql);
-    if (!empty($types)) $stmt->bind_param($types, ...$params);
-    $stmt->execute();
-    $newId = $stmt->insert_id;
-    $stmt->close();
-    json_ok(['id'=>$newId]);
+      if ($action === 'insert') {
+          $colNames = []; $placeholders = [];
+          foreach($data as $k=>$v){
+             if(!in_array($k, $validCols) || $k==='id') continue;
+             $colNames[] = "`$k`";
+             $placeholders[] = "?";
+          }
+          $sql = "INSERT INTO agremiados (" . implode(',', $colNames) . ") VALUES (" . implode(',', $placeholders) . ")";
+      } else {
+          $id = intval($data['id'] ?? 0);
+          if ($id <= 0) json_err("Falta ID");
+          $sql = "UPDATE agremiados SET " . implode(', ', $colsDb) . " WHERE id = ?";
+          $bindParams[] = $id;
+          $types .= "i";
+      }
+
+      $stmt = $conn->prepare($sql);
+      if(!$stmt) json_err("Error SQL: " . $conn->error);
+      $stmt->bind_param($types, ...$bindParams);
+      
+      if ($stmt->execute()) {
+          json_ok(['msg' => 'Guardado correctamente']);
+      } else {
+          json_err("Error BD: " . $stmt->error);
+      }
+      $stmt->close();
   }
-
-  json_err("Acción no válida");
-} catch (Throwable $e){
+} catch (Throwable $e) {
   json_err($e->getMessage());
 }
+?>
