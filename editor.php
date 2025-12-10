@@ -1,6 +1,7 @@
 <?php
 // editor.php - FINAL V9 (Corrección visual: Sin header sticky que tape filas)
 require_once "conexion.php";
+require_once "auth.php";
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -8,7 +9,7 @@ require_once "conexion.php";
   <meta charset="UTF-8">
   <title>Gestión de Agremiados · ICAJ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="icon" type="image/png" href="assets/EstrellaCaj.png">
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -89,6 +90,9 @@ require_once "conexion.php";
         <a href="index.php" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
             <i class="fa-solid fa-right-from-bracket"></i> Salir
         </a>
+        <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER'): ?>
+    <a href="auditoria.php" class="btn btn-sm btn-dark ms-2"><i class="fa-solid fa-shield-cat"></i> Auditoría</a>
+<?php endif; ?>
       </div>
     </div>
   </nav>
@@ -237,7 +241,7 @@ require_once "conexion.php";
                 </div>
                 <div class="col-md-4">
                    <label class="form-label"><i class="fa-regular fa-paper-plane"></i> Casilla Electrónica</label>
-                   <input type="text" class="form-control" name="CASILLA_ELECTRONICA">
+                   <input type="text" class="form-control" name="CASILLA_ELECTR_NICA">
                 </div>
               </div>
 

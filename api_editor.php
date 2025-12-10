@@ -134,7 +134,29 @@ try {
       if(!$stmt) json_err("Error SQL: " . $conn->error);
       $stmt->bind_param($types, ...$bindParams);
       
+// --- EJECUTAR CONSULTA ---
       if ($stmt->execute()) {
+          
+          // --- AUDITORÍA MEJORADA ---
+          $affectedId = ($action === 'insert') ? $stmt->insert_id : $id;
+          
+          // 1. Obtenemos qué campos se tocaron
+          $camposTocados = array_keys($data);
+          // Filtramos campos irrelevantes o el ID
+          $camposTocados = array_filter($camposTocados, fn($c) => $c !== 'id');
+          // Creamos string legible: "DNI, NOMBRE, CORREO"
+          $listaCampos = implode(', ', $camposTocados);
+          
+          $detalleLog = "";
+          if ($action === 'insert') {
+              $detalleLog = "Registró nuevo agremiado (ID: $affectedId). Campos: $listaCampos";
+          } else {
+              $detalleLog = "Actualizó agremiado (ID: $affectedId). Campos modificados: $listaCampos";
+          }
+          
+          registrar_auditoria($conn, strtoupper($action), $detalleLog);
+          // ---------------------------
+
           json_ok(['msg' => 'Guardado correctamente']);
       } else {
           json_err("Error BD: " . $stmt->error);

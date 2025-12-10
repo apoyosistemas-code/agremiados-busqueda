@@ -1,14 +1,73 @@
-<?php /* index.php */ ?>
+<?php 
+// 1. SEGURIDAD: Bloqueamos el acceso público
+require_once "conexion.php";
+require_once "auth.php"; 
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Consulta de Agremiados</title>
+  <link rel="icon" type="image/png" href="assets/EstrellaCaj.png">
   <link rel="stylesheet" href="style.css?v=3">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+      /* --- ESTILOS AGREGADOS PARA LA BARRA SUPERIOR Y BOTONES --- */
+      
+      /* Barra de Usuario */
+      .user-bar {
+          position: absolute; top: 20px; right: 20px; z-index: 1000;
+          display: flex; gap: 10px; align-items: center;
+      }
+      .user-badge {
+          background: rgba(255,255,255,0.95); padding: 8px 15px; border-radius: 30px;
+          font-size: 0.85rem; font-weight: 600; color: #12503a;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #e1e1e1;
+      }
+      .btn-logout {
+          background: #fee2e2; color: #991b1b; padding: 8px 15px; 
+          border-radius: 30px; text-decoration: none; font-size: 0.85rem; font-weight: 600;
+          border: 1px solid #fca5a5; transition: 0.3s;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      }
+      .btn-logout:hover { background: #991b1b; color: white; }
+
+      /* Contenedor de Botones Flotantes */
+      .fab-container {
+        position: fixed; right: 22px; bottom: 22px; z-index: 9999;
+        display: flex; flex-direction: column; gap: 15px; align-items: flex-end;
+      }
+      .fab-btn {
+        display: flex; align-items: center; gap: 12px;
+        background: #ffffff; padding: 12px 20px 12px 16px;
+        border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        text-decoration: none; font-weight: 600; font-family: 'Poppins', sans-serif;
+        transition: all 0.3s ease; border: 2px solid transparent; font-size: 0.95rem;
+        min-width: 180px;
+      }
+      .fab-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+      .fab-btn i { font-size: 20px; width: 24px; display: flex; justify-content: center; }
+
+      /* Colores Específicos */
+      .btn-bday { color: #d9a23e; } .btn-bday:hover { color: #b7862f; border-color: #d9a23e; }
+      .btn-editor { color: #12503a; } .btn-editor:hover { color: #0a2a1f; border-color: #12503a; }
+      .btn-users { color: #d63384; } .btn-users:hover { color: #a61e61; border-color: #d63384; }
+      .btn-audit { color: #6610f2; } .btn-audit:hover { color: #520dc2; border-color: #6610f2; }
+  </style>
 </head>
 <body class="home">
+
+  <div class="user-bar">
+      <div class="user-badge">
+          <i class="fa-solid fa-user-circle me-2"></i> 
+          <?= htmlspecialchars($_SESSION['user_full'] ?? 'Admin') ?>
+          <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER') echo ' <span style="color:#d9a23e">★</span>'; ?>
+      </div>
+      <a href="logout.php" class="btn-logout"><i class="fa-solid fa-power-off"></i> Salir</a>
+  </div>
 
   <main class="hero-wrap">
     <div class="hero">
@@ -22,13 +81,11 @@
       <h1 class="hero-title">Sistema de Consulta de Agremiados</h1>
       <p class="hero-subtitle">Elija el modo de búsqueda y escriba su consulta.</p>
 
-      <!-- Toggle de modos -->
       <div class="search-toggle">
         <button type="button" class="toggle-btn" data-mode="code">Por Colegiatura</button>
         <button type="button" class="toggle-btn active" data-mode="name">Por Apellidos y Nombres</button>
       </div>
 
-      <!-- Formulario Colegiatura -->
       <form id="form-code" action="buscar.php" method="get" autocomplete="off" class="hero-form" style="display:none;">
         <input type="hidden" name="mode" value="code">
         <div class="hero-input">
@@ -38,7 +95,6 @@
         <button type="submit" class="btn btn-primary">Buscar</button>
       </form>
 
-      <!-- Formulario Nombres con Autocomplete -->
       <form id="form-name" action="buscar.php" method="get" autocomplete="off" class="hero-form">
         <input type="hidden" name="mode" value="name">
         <div class="hero-input ac-wrap">
@@ -55,6 +111,31 @@
   <footer class="footer hero-footer">
     Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.
   </footer>
+
+  <div class="fab-container">
+    
+    <a href="cumpleanos.php" class="fab-btn btn-bday" title="Ver Cumpleaños">
+        <i class="fa-solid fa-cake-candles"></i>
+        <span>Lista de Cumpleaños</span>
+    </a>
+
+    <a href="editor.php" class="fab-btn btn-editor" title="Ir a Modo Editor">
+        <i class="fa-solid fa-screwdriver-wrench"></i>
+        <span>Modo Editor</span>
+    </a>
+
+    <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER'): ?>
+        <a href="usuarios.php" class="fab-btn btn-users" title="Gestionar Usuarios">
+            <i class="fa-solid fa-users-gear"></i>
+            <span>Usuarios</span>
+        </a>
+        <a href="auditoria.php" class="fab-btn btn-audit" title="Ver Auditoría">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Auditoría</span>
+        </a>
+    <?php endif; ?>
+
+  </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -143,7 +224,8 @@ document.addEventListener('DOMContentLoaded', () => {
     acAbort = new AbortController();
     showMsg('Buscando…');
 
-    fetch('./api_sugerencias.php?q=' + encodeURIComponent(q), {
+    // Nota: Asegúrate de que api_sugerencias.php esté en la misma carpeta
+    fetch('api_sugerencias.php?q=' + encodeURIComponent(q), {
       signal: acAbort.signal,
       cache: 'no-store'
     })
@@ -183,69 +265,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 </script>
-
-<style>
-  .fab-container {
-    position: fixed;
-    right: 22px;
-    bottom: 22px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: flex-end;
-  }
-  .fab-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #ffffff;
-    padding: 12px 20px 12px 16px; /* Ajuste de padding */
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    text-decoration: none;
-    font-weight: 600;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-    font-size: 0.95rem;
-  }
-  .fab-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  }
-  
-  /* Iconos */
-  .fab-btn i {
-    font-size: 20px;
-    width: 24px;
-    display: flex; justify-content: center;
-  }
-
-  /* Estilo Cumpleaños (Dorado) */
-  .btn-bday { color: #d9a23e; } 
-  .btn-bday:hover { color: #b7862f; border-color: #d9a23e; }
-
-  /* Estilo Editor (Verde Corporativo) */
-  .btn-editor { color: #12503a; }
-  .btn-editor:hover { color: #0a2a1f; border-color: #12503a; }
-</style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<div class="fab-container">
-  
-  <a href="cumpleanos.php" class="fab-btn btn-bday" title="Ver Cumpleaños">
-    <i class="fa-solid fa-cake-candles"></i>
-    <span>Lista de Cumpleaños</span>
-  </a>
-
-  <a href="editor.php" class="fab-btn btn-editor" title="Ir a Modo Editor">
-    <i class="fa-solid fa-screwdriver-wrench"></i>
-    <span>Modo Editor</span>
-  </a>
-
-</div>
 
 </body>
 </html>

@@ -155,7 +155,7 @@ function labelize($key, $pretty){
   <main class="hero-wrap">
     <div class="hero">
       <?php
-        $logo = 'assets/logo.png';
+        $logo = 'assets/';
         if (file_exists($logo)) {
           echo '<img class="hero-logo" src="'.$logo.'" alt="Ilustre Colegio de Abogados de Junín" />';
         }
