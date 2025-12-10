@@ -15,26 +15,31 @@ $params = [];
 $types  = '';
 
 if ($mode === 'name') {
-  // Búsqueda por apellidos y nombres
+  // Búsqueda por apellidos y nombres con FULLTEXT
   $qname = $nameQ !== '' ? $nameQ : $q;
   $qname = trim($qname);
   if ($qname !== '') {
-    // Divide por espacios y exige que todos los tokens aparezcan
+    // Prepara para modo booleano: +palabra1 +palabra2...
     $tokens = preg_split('/\s+/', $qname, -1, PREG_SPLIT_NO_EMPTY);
-    $clauses = [];
+    $search_str = '';
     foreach ($tokens as $t) {
-      $clauses[] = "NOMBRE_DEL_AGREMIADO LIKE ?";
-      $params[]  = "%$t%";
-      $types    .= 's';
+      $search_str .= "+$t ";
     }
-    if ($clauses) $where = implode(' AND ', $clauses);
+    $search_str = trim($search_str);
+
+    if ($search_str) {
+      $where = "MATCH(NOMBRE_DEL_AGREMIADO) AGAINST(? IN BOOLEAN MODE)";
+      $params[] = $search_str;
+      $types .= 's';
+    }
   }
 } else {
   // Búsqueda por colegiatura (default)
   $code = $q !== '' ? $q : $nameQ;
   $code = trim($code);
   if ($code !== '') {
-    $where = "COLEGIATURA LIKE CONCAT('%', ?, '%')";
+    // LIKE por comienzo de string, más eficiente con índice
+    $where = "CAST(COLEGIATURA AS CHAR) LIKE CONCAT(?, '%')";
     $params[] = $code;
     $types    .= 's';
   }

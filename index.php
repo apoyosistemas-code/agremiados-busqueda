@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const acList = document.getElementById('acList');
   let acAbort = null;
 
-  // Siempre devuelve string seguro
   function escHtml(s){
     s = (s === undefined || s === null) ? '' : String(s);
     return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -104,8 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     return html;
   }
-
-  // Acepta distintos nombres de campos del API
   function normalizeItem(it){
     if (typeof it === 'string') return { nombre: it, colegiatura: '', dni: '' };
     const nombre = it.nombre ?? it.NOMBRE ?? it.NOMBRE_DEL_AGREMIADO ?? '';
@@ -113,7 +110,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const dni    = it.dni ?? it.DNI ?? '';
     return { nombre, colegiatura: coleg, dni };
   }
-
   function showMsg(msg){
     acList.innerHTML = `<div class="ac-item"><div class="ac-sub">${escHtml(msg)}</div></div>`;
     acList.style.display = 'block';
@@ -142,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // fetch tolerante: lee texto y luego intenta JSON.parse
   function fetchAC(q){
     if (acAbort) acAbort.abort();
     acAbort = new AbortController();
@@ -175,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
     nameInput.addEventListener('blur', ()=>setTimeout(clearList, 120));
     nameInput.addEventListener('keydown', e => {
       if (e.key === 'Escape') { clearList(); return; }
-      // Enter toma la primera sugerencia si existe
       if (e.key === 'Enter' && acList.style.display === 'block') {
         const first = acList.querySelector('.ac-item');
         if (first && first.dataset.name) {
@@ -190,6 +184,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<!-- Botón flotante a la esquina (usa estilos .editor-fab del CSS) -->
+<a href="editor.php" class="editor-fab" title="Modo Editor">
+  <span class="editor-fab__icon">🛠️</span>
+  <span class="editor-fab__label">Modo Editor</span>
+</a>
 
 </body>
 </html>
