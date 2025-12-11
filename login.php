@@ -19,8 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $res = $stmt->get_result();
     
     if ($row = $res->fetch_assoc()) {
-        // CORRECCIÓN DE SEGURIDAD:
-        // Se eliminó "|| $pass === 'admin123'". Ahora SOLO valida el hash real.
         if (password_verify($pass, $row['password'])) { 
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['user_name'] = $row['usuario'];
@@ -61,18 +59,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     .hero-title { font-size: 1.5rem; color: #12503a; margin-bottom: 10px; font-weight: 600; }
     .hero-subtitle { color: #666; margin-bottom: 30px; font-size: 0.95rem; }
     
+    /* Contenedor relativo para posicionar el ojo */
+    .input-group {
+        position: relative;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
     .login-form input {
-        width: 100%; padding: 14px 15px; margin-bottom: 15px;
+        width: 100%; padding: 14px 15px; 
         border: 2px solid #e5e7eb; border-radius: 12px;
         font-family: 'Poppins'; font-size: 1rem; outline: none; transition: 0.3s;
-        box-sizing: border-box; /* Importante para que no se salga del ancho */
+        box-sizing: border-box;
     }
+    
+    /* Input usuario mantiene margen, el de password lo maneja el grupo */
+    .input-user { margin-bottom: 15px; }
+
     .login-form input:focus { border-color: #12503a; box-shadow: 0 0 0 4px rgba(18,80,58,0.1); }
     
+    /* Estilo del OJO */
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #999;
+        font-size: 1.1rem;
+        transition: 0.2s;
+    }
+    .toggle-password:hover { color: #12503a; }
+
     .btn-login {
         width: 100%; padding: 14px; background: #12503a; color: white;
         border: none; border-radius: 12px; font-weight: 600; font-size: 1rem;
-        cursor: pointer; transition: 0.3s;
+        cursor: pointer; transition: 0.3s; margin-top: 10px;
     }
     .btn-login:hover { background: #0e3f2d; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(18,80,58,0.2); }
     
@@ -95,11 +117,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST" class="login-form">
-        <input type="text" name="usuario" placeholder="Usuario" required autofocus autocomplete="off">
-        <input type="password" name="password" placeholder="Contraseña" required>
+        <input type="text" name="usuario" class="input-user" placeholder="Usuario" required autofocus autocomplete="off">
+        
+        <div class="input-group">
+            
+            <input type="password" name="password" id="id_password" placeholder="Contraseña" required>
+            <i class="fa-solid fa-eye toggle-password" onclick="togglePassword()"></i>
+        </div>
+
         <button type="submit" class="btn-login">Iniciar Sesión</button>
     </form>
   </div>
+
+  <script>
+      function togglePassword() {
+          const input = document.getElementById('id_password');
+          const icon = document.querySelector('.toggle-password');
+          
+          if (input.type === "password") {
+              input.type = "text";
+              icon.classList.remove('fa-eye');
+              icon.classList.add('fa-eye-slash'); // Icono de ojo tachado
+          } else {
+              input.type = "password";
+              icon.classList.remove('fa-eye-slash');
+              icon.classList.add('fa-eye'); // Icono de ojo normal
+          }
+      }
+  </script>
 
 </body>
 </html>

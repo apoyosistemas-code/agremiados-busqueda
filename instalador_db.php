@@ -3,7 +3,7 @@
 // EJECUTAR EN LA NUEVA COMPUTADORA PARA CREAR TODO DESDE CERO
 require_once "conexion.php";
 
-echo "<h1>⚙️ Instalación de Base de Datos (Sistema ICAS)</h1>";
+echo "<h1>⚙️ Instalación de Base de Datos (Sistema ICAJ)</h1>";
 
 try {
     // 1. CREAR TABLA USUARIOS

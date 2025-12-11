@@ -1,5 +1,5 @@
 <?php
-// editor.php - FINAL V9 (Corrección visual: Sin header sticky que tape filas)
+// editor.php - FINAL V13 (Fecha de Incorporación Asegurada)
 require_once "conexion.php";
 require_once "auth.php";
 ?>
@@ -7,7 +7,7 @@ require_once "auth.php";
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Gestión de Agremiados · ICAJ</title>
+  <title>Gestión de Agremiados · ICAS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="assets/EstrellaCaj.png">
   
@@ -26,7 +26,7 @@ require_once "auth.php";
         font-family: 'Poppins', sans-serif; 
         background-color: var(--color-fondo);
         color: var(--color-texto);
-        padding-top: 110px; /* Espacio para que la navbar no tape nada al inicio */
+        padding-top: 110px; 
     }
     .navbar-custom { 
         background-color: #ffffff; 
@@ -43,7 +43,6 @@ require_once "auth.php";
         border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
         background: white; margin-bottom: 20px;
     }
-    /* CORRECCIÓN AQUÍ: Quitamos 'position: sticky' para evitar que tape el contenido */
     .table thead th { 
         background-color: #f8f9fa; color: var(--color-verde); 
         font-weight: 600; text-transform: uppercase; font-size: 0.8rem;
@@ -83,6 +82,7 @@ require_once "auth.php";
     <div class="container-fluid px-4">
       <a class="navbar-brand" href="editor.php" title="Reiniciar">
         <img src="assets/logo.png" alt="Logo">
+        <img src="assets/estrella.png" alt="Estrella" style="height: 55px; margin-left: 5px;">
         <span>Gestión de Agremiados</span>
       </a>
       <div class="d-flex gap-2">
@@ -91,8 +91,8 @@ require_once "auth.php";
             <i class="fa-solid fa-right-from-bracket"></i> Salir
         </a>
         <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER'): ?>
-    <a href="auditoria.php" class="btn btn-sm btn-dark ms-2"><i class="fa-solid fa-shield-cat"></i> Auditoría</a>
-<?php endif; ?>
+            <a href="auditoria.php" class="btn btn-sm btn-dark ms-2"><i class="fa-solid fa-shield-cat"></i> Auditoría</a>
+        <?php endif; ?>
       </div>
     </div>
   </nav>
@@ -168,7 +168,7 @@ require_once "auth.php";
               <div class="row g-3">
                 <div class="col-md-2">
                   <label class="form-label">Colegiatura <span class="text-danger">*</span></label>
-                  <input type="number" class="form-control" name="COLEGIATURA" required>
+                  <input type="number" class="form-control" name="COLEGIATURA" id="inputColegiatura" required>
                 </div>
                 <div class="col-md-3">
                   <label class="form-label">Estado <span class="text-danger">*</span></label>
@@ -178,7 +178,7 @@ require_once "auth.php";
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <label class="form-label">F. Incorporación</label>
+                  <label class="form-label">Fecha de Incorporación</label>
                   <input type="date" class="form-control" name="FECHA_DE_INCORPORACI_N">
                 </div>
                 <div class="col-md-4">
@@ -241,7 +241,7 @@ require_once "auth.php";
                 </div>
                 <div class="col-md-4">
                    <label class="form-label"><i class="fa-regular fa-paper-plane"></i> Casilla Electrónica</label>
-                   <input type="text" class="form-control" name="CASILLA_ELECTR_NICA">
+                   <input type="text" class="form-control" name="CASILLA_ELECTRONICA">
                 </div>
               </div>
 
@@ -416,6 +416,13 @@ require_once "auth.php";
       document.getElementById('formEditor').reset();
       document.getElementById('field_id').value = row.id;
 
+      // DESBLOQUEAR la colegiatura porque estamos EDITANDO
+      const colInput = document.getElementById('inputColegiatura');
+      if(colInput) {
+          colInput.readOnly = false;
+          colInput.classList.remove('bg-light');
+      }
+
       const rowUpper = {};
       Object.keys(row).forEach(k => rowUpper[k.toUpperCase()] = row[k]);
 
@@ -440,11 +447,30 @@ require_once "auth.php";
       modalFunc.show();
     }
 
-    function prepInsert() {
+    async function prepInsert() {
       document.getElementById('formEditor').reset();
       document.getElementById('field_id').value = '';
+      
       const select = document.querySelector('select[name="ESTADO"]');
       if(select) select.value = 'VIVO';
+
+      // Llamada a la API para obtener la siguiente Colegiatura
+      try {
+          const res = await fetch(API + '?action=get_next_col');
+          const data = await res.json();
+          if(data.ok && data.next) {
+              const colInput = document.getElementById('inputColegiatura');
+              if(colInput) {
+                  colInput.value = data.next;
+                  // BLOQUEO PARA EVITAR DUPLICADOS Y ERRORES
+                  colInput.readOnly = true; 
+                  colInput.classList.add('bg-light');
+              }
+          }
+      } catch(e) {
+          console.error("No se pudo calcular la colegiatura", e);
+      }
+
       const modalFunc = new bootstrap.Modal(document.getElementById('modalEdicion'));
       modalFunc.show();
     }

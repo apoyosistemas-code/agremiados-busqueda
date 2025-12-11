@@ -1,5 +1,7 @@
 <?php
+// 1. SEGURIDAD: Bloqueo de acceso directo
 require_once "conexion.php";
+require_once "auth.php"; 
 
 /* ========= Entrada ========= */
 $mode   = $_GET['mode'] ?? 'code';          // 'code' (colegiatura) | 'name' (apellidos y nombres)
@@ -149,9 +151,43 @@ function labelize($key, $pretty){
   <title>Resultados · Sistema de Consulta de Agremiados</title>
   <link rel="stylesheet" href="style.css?v=4">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Estilos para los botones naranjas modernos */
+    .btn-action {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background-color: #E79E1E; /* Naranja corporativo */
+        color: white; padding: 10px 15px; border-radius: 8px;
+        text-decoration: none; font-weight: 500; font-size: 0.9rem;
+        transition: background 0.2s; border: none; flex: 1; /* Ocupar espacio igual */
+        white-space: nowrap;
+    }
+    .btn-action:hover { background-color: #cf8d1a; color: white; }
+    
+    .btn-disabled-modern {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background-color: #f3f4f6; color: #9ca3af; padding: 10px 15px;
+        border-radius: 8px; font-weight: 500; font-size: 0.9rem;
+        border: 1px solid #e5e7eb; flex: 1; cursor: not-allowed;
+        white-space: nowrap;
+    }
+    
+    /* Contenedor de acciones: LADO A LADO */
+    .actions2 { 
+        display: flex; 
+        gap: 10px; 
+        margin-top: 15px; 
+        flex-direction: row; /* Fuerza horizontal */
+    }
+    
+    /* Responsivo: en celulares muy pequeños, apilar si no caben */
+    @media (max-width: 480px) {
+        .actions2 { flex-direction: column; }
+    }
+  </style>
 </head>
 <body class="home results-compact">
-  <!-- HERO compacto -->
   <main class="hero-wrap">
     <div class="hero">
       <?php
@@ -210,17 +246,23 @@ function labelize($key, $pretty){
 
             <div class="actions2">
               <?php if (has_link($recibo)): ?>
-                <a href="<?= htmlspecialchars($recibo) ?>" target="_blank" class="btn btn-primary">📄 Foto de Recibo</a>
+                <a href="<?= htmlspecialchars($recibo) ?>" target="_blank" class="btn-action">
+                    <i class="fa-solid fa-file-invoice"></i> Foto de Recibo
+                </a>
               <?php else: ?>
-                <button class="btn btn-disabled" disabled>📄 Foto de Recibo</button>
-                <div class="hint">Archivo no encontrado</div>
+                <div class="btn-disabled-modern">
+                    <i class="fa-solid fa-file-invoice"></i> Sin Recibo
+                </div>
               <?php endif; ?>
 
               <?php if (has_link($ficha)): ?>
-                <a href="<?= htmlspecialchars($ficha) ?>" target="_blank" class="btn btn-primary">🧾 Ficha Personal</a>
+                <a href="<?= htmlspecialchars($ficha) ?>" target="_blank" class="btn-action">
+                    <i class="fa-solid fa-id-card"></i> Ficha Personal
+                </a>
               <?php else: ?>
-                <button class="btn btn-disabled" disabled>🧾 Ficha Personal</button>
-                <div class="hint">Archivo no encontrado</div>
+                <div class="btn-disabled-modern">
+                    <i class="fa-solid fa-id-card"></i> Sin Ficha
+                </div>
               <?php endif; ?>
             </div>
           </article>
