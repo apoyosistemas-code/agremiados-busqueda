@@ -62,7 +62,7 @@ $res = $conn->query($sql);
 <body>
 
   <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-4 animate-container">
       <a class="navbar-brand" href="index.php">
         <img src="assets/logo.png" alt="Logo">
         <span>Registro de Auditoría</span>
@@ -75,7 +75,7 @@ $res = $conn->query($sql);
     </div>
   </nav>
 
-  <div class="container-fluid px-4">
+  <div class="container-fluid px-4 animate-container">
     <div class="card card-custom p-4">
         <h5 class="mb-4 text-secondary fw-bold border-bottom pb-2">
             <i class="fa-solid fa-shield-halved me-2"></i> Últimos Movimientos del Sistema
@@ -116,6 +116,19 @@ $res = $conn->query($sql);
         </div>
     </div>
   </div>
+
+<script>
+  // Script para activar la animación de entrada
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.animate-container');
+    if (container) {
+      // Pequeño retraso para asegurar que el estado inicial se renderice
+      setTimeout(() => {
+        container.classList.add('show');
+      }, 50);
+    }
+  });
+</script>
 
 </body>
 </html>

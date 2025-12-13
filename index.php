@@ -112,30 +112,30 @@ require_once "auth.php";
     Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.
   </footer>
 
-  <div class="fab-container">
+<div class="fab-container">
     
-    <a href="cumpleanos.php" class="fab-btn btn-bday" title="Ver Cumpleaños">
+    <a href="cumpleanos.php" class="fab-btn btn-bday" title="Cumpleaños">
         <i class="fa-solid fa-cake-candles"></i>
-        <span>Lista de Cumpleaños</span>
+        <span>Cumpleaños</span>
     </a>
 
-    <a href="editor.php" class="fab-btn btn-editor" title="Ir a Modo Editor">
+    <a href="editor.php" class="fab-btn btn-editor" title="Editor">
         <i class="fa-solid fa-screwdriver-wrench"></i>
-        <span>Modo Editor</span>
+        <span>Editor</span>
     </a>
 
     <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER'): ?>
-        <a href="usuarios.php" class="fab-btn btn-users" title="Gestionar Usuarios">
+        <a href="usuarios.php" class="fab-btn btn-users" title="Usuarios">
             <i class="fa-solid fa-users-gear"></i>
             <span>Usuarios</span>
         </a>
-        <a href="auditoria.php" class="fab-btn btn-audit" title="Ver Auditoría">
+        <a href="auditoria.php" class="fab-btn btn-audit" title="Auditoría">
             <i class="fa-solid fa-shield-halved"></i>
             <span>Auditoría</span>
         </a>
     <?php endif; ?>
 
-  </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

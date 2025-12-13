@@ -32,7 +32,7 @@ if ($_SESSION['user_role'] !== 'MASTER') {
 <body>
 
   <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-4 animate-container">
       <a class="navbar-brand" href="index.php">
         <img src="assets/logo.png" alt="Logo">
         <span>Gestión de Usuarios</span>
@@ -167,5 +167,19 @@ if ($_SESSION['user_role'] !== 'MASTER') {
         else alert('Error: ' + json.error);
     }
   </script>
+
+<script>
+  // Script para activar la animación de entrada
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.animate-container');
+    if (container) {
+      // Pequeño retraso para asegurar que el estado inicial se renderice
+      setTimeout(() => {
+        container.classList.add('show');
+      }, 50);
+    }
+  });
+</script>
+
 </body>
 </html>

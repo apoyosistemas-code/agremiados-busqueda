@@ -1,6 +1,6 @@
 /* ================== VARIABLES Y BASE ================== */
 :root{
-  --bg:#ffffff;
+  --bg:#f4f7fa;
   --green-900:#0a2a1f;
   --green-800:#0e3b2b;
   --green-700:#12503a;
@@ -28,14 +28,38 @@ body.home, body.results-compact {
   display: flex;
   flex-direction: column;
 }
-.hero-wrap { flex: 1 0 auto; }
+
+/* =========================================================
+   ARREGLO CRÍTICO: BUSCADOR ARRIBA (results-compact)
+   ========================================================= */
+.hero-wrap { 
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    transition: all 0.3s ease;
+}
+
+body.results-compact .hero-wrap {
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    padding-top: 40px !important;
+    padding-bottom: 10px !important;
+}
+
+body.results-compact .wrap {
+    flex: 1 0 auto;
+    margin-top: 0;
+}
 .hero-footer { margin-top: auto; }
 
 /* Seguridad imágenes */
 img { max-width: 100%; height: auto; }
 
 
-/* ================== BOTONES ================== */
+/* ================== BOTONES GLOBALES ================== */
 .btn{
   border:none; border-radius:10px; padding:12px 16px;
   font-weight:700; cursor:pointer; text-decoration:none;
@@ -52,17 +76,11 @@ img { max-width: 100%; height: auto; }
 .wrap{ max-width:1280px; margin:24px auto; padding:0 20px }
 
 /* ================== PORTADA (HOME) ================== */
-body.home{ background:#f4f7fa }
-.hero-wrap{
-  min-height:78vh; display:flex; align-items:center; justify-content:center;
-  padding:40px 16px;
-}
 .hero{ text-align:center; max-width:980px; width:100%; margin:0 auto }
 .hero-logo{ width:320px; height:auto; object-fit:contain; display:block; margin:10px auto 14px }
 .hero-title{ margin:8px 0 6px; font-size:clamp(24px,4vw,36px); color:var(--green-800); font-weight:700 }
 .hero-subtitle{ color:var(--muted); margin-bottom:22px }
 
-/* Formulario principal */
 .hero-form{
   display:grid; grid-template-columns:1fr auto; gap:10px; max-width:980px; margin:0 auto;
   background:#fff; border:1px solid var(--line); border-radius:14px; padding:10px; box-shadow:var(--shadow);
@@ -76,8 +94,7 @@ body.home{ background:#f4f7fa }
   width:100%; height:44px; border:none; outline:none; font-size:16px; font-family:'Poppins',sans-serif;
 }
 
-/* ================== TOGGLE DE MODOS (VERDE INSTITUCIONAL) ================== */
-/* Toggle de modos (dorado como el botón Buscar) */
+/* ================== TOGGLE DE MODOS ================== */
 .search-toggle{
   display:flex; gap:10px; justify-content:center; margin:8px auto 14px;
 }
@@ -101,13 +118,12 @@ body.home{ background:#f4f7fa }
   border-color: var(--gold);
 }
 
-/* ================== AUTOCOMPLETE MODERNO ================== */
-/* Autocomplete moderno */
+/* ================== AUTOCOMPLETE ================== */
 .ac-wrap{ position:relative; width:100%; }
 .ac-list{
   position:absolute; left:0; right:0;
   top: calc(100% + 8px);
-  z-index: 1000;               /* <— para que nunca quede detrás */
+  z-index: 1000;
   background:#fff;
   border:1px solid var(--line);
   border-radius:14px;
@@ -167,33 +183,38 @@ body.home{ background:#f4f7fa }
 
 /* Acciones y paginación */
 .actions2{ display:flex; gap:12px; padding:16px; border-top:1px solid var(--line); align-items:center; flex-wrap:wrap }
-.hint{ font-size:12px; color:var(--muted) }
 .pager{ margin-top:20px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center }
 .page{ padding:6px 10px; border-radius:8px; background:#f3f4f6; color:#111827; text-decoration:none; border:1px solid var(--line) }
 .page.active{ background:var(--gold); color:#1a1a1a; border-color:var(--gold) }
 .footer{ margin:30px 0; text-align:center; color:var(--muted) }
 
-/* ================== “RESULTADOS COMPACTOS” ================== */
-/* usar body class="home results-compact" SOLO en buscar.php */
-body.results-compact .hero-wrap{ min-height:auto; padding:10px 16px 0 }
-body.results-compact .hero-logo{ width:300px; margin:6px auto 4px }
-body.results-compact .hero-title{ margin:4px 0 6px; font-size:clamp(22px,3.2vw,34px) }
-body.results-compact .hero-subtitle{ margin:0 0 8px }
-body.results-compact .wrap{ margin-top:8px }
 
 /* ================== ANIMACIONES ================== */
+/* Animaciones específicas del index */
 .hero{
   opacity:0; transform:translateY(-6px);
   transition:opacity .55s ease, transform .55s ease;
 }
 .hero.in{ opacity:1; transform:none; }
-
 .card2{
   opacity:0; transform:translateY(8px);
   transition:opacity .4s ease, transform .4s ease, box-shadow .2s ease;
 }
 .card2.in{ opacity:1; transform:none; }
 .card2:hover{ box-shadow:0 14px 28px rgba(0,0,0,.10); }
+
+/* NUEVA: Animación genérica para contenedores de otras páginas */
+.animate-container {
+  opacity: 0;
+  transform: translateY(20px); /* Empieza un poco más abajo */
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+/* Esta clase se añade con JS para activar la animación */
+.animate-container.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 
 /* ================== RESPONSIVE ================== */
 @media (max-width:900px){ .row{ grid-template-columns:180px 1fr } }
@@ -214,8 +235,7 @@ body.results-compact .wrap{ margin-top:8px }
 
 /* ========== MOBILE ULTRA COMPACTO (≤480px) ========== */
 @media (max-width:480px){
-  /* Hero más compacto */
-  body.home .hero-wrap{ padding:20px 12px; }
+  .hero-wrap{ padding:20px 12px; }
   .hero-logo{ width:240px; margin:4px auto 6px; }
   .hero-title{ font-size:22px; margin:2px 0 4px; }
   .hero-subtitle{ margin-bottom:12px; font-size:13px; }
@@ -223,8 +243,6 @@ body.results-compact .wrap{ margin-top:8px }
   .hero-input{ height:44px; padding:0 10px; }
   .hero-input input{ height:40px; font-size:15px; }
   .btn{ padding:10px 14px; border-radius:9px; font-size:14px; }
-
-  /* Tarjeta y filas más densas */
   .wrap{ padding:0 10px; margin:16px auto; }
   .cards-grid{ gap:12px; }
   .card2-header{ padding:14px 12px; }
@@ -248,40 +266,89 @@ body.results-compact .wrap{ margin-top:8px }
 }
 
 
-/* ===== Botón flotante Modo Editor ===== */
-.editor-fab{
-  position: fixed;
-  right: 22px;            /* esquina inferior derecha */
-  bottom: 22px;
+/* =========================================================
+   ESTILO FINAL: BOTONES MÁS GRANDES Y AJUSTADOS (ESQUINA SUPERIOR IZQ)
+   ========================================================= */
+.fab-container {
+  position: fixed !important;
+  top: 30px !important;
+  left: 30px !important;
+  
+  /* Reset de otras posiciones */
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
   z-index: 9999;
-  display: inline-flex;
+  
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Un poco más de espacio entre botones más grandes */
+  align-items: flex-start;
+  
+  /* Asegura que el contenedor se ajuste al contenido y no sea ancho */
+  width: fit-content !important;
+  
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.fab-btn {
+  display: flex;
   align-items: center;
-  gap: 10px;
-
-  background: var(--gold);
-  color: #fff;
-  font-weight: 600;
+  gap: 10px; /* Icono y texto un poco más separados */
+  
+  background: #ffffff;
+  /* TAMAÑO LIGERAMENTE MÁS GRANDE */
+  padding: 10px 20px !important; 
+  border-radius: 50px;
+  
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Sombra un poco más pronunciada */
+  border: 1px solid rgba(0,0,0,0.08);
+  
   text-decoration: none;
-
-  padding: 12px 16px;
-  border-radius: 999px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.15);
-  transition: transform .12s ease, box-shadow .12s ease, background .2s ease;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  /* TEXTO MÁS GRANDE */
+  font-size: 0.9rem !important; 
+  color: #555;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
-.editor-fab:hover{
-  background: var(--gold-600);
-  transform: translateY(-1px);
-  box-shadow: 0 14px 30px rgba(0,0,0,.18);
-}
-.editor-fab__icon{ filter: drop-shadow(0 1px 0 rgba(0,0,0,.12)); }
-.editor-fab__label{ white-space: nowrap; }
 
-/* Compacto en móvil */
-@media (max-width: 640px){
-  .editor-fab{
-    right: 14px;
-    bottom: 14px;
-    padding: 10px 12px;
-    font-size: 14px;
+/* ICONO MÁS GRANDE */
+.fab-btn i { 
+    font-size: 1.1rem !important; 
+}
+
+/* Efecto Hover: Se mueven un poquito a la derecha */
+.fab-btn:hover {
+  transform: translateX(4px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* Colores */
+.btn-bday:hover   { color: #d9a23e; border-left: 4px solid #d9a23e; } 
+.btn-editor:hover { color: #12503a; border-left: 4px solid #12503a; } 
+.btn-users:hover  { color: #d63384; border-left: 4px solid #d63384; } 
+.btn-audit:hover  { color: #6610f2; border-left: 4px solid #6610f2; }
+
+/* Móvil - Ajuste más pequeño para pantallas chicas */
+@media (max-width: 768px){
+  .fab-container {
+    top: 20px !important;
+    left: 20px !important;
+  }
+  .fab-btn {
+    padding: 8px 14px !important;
+    font-size: 0.8rem !important;
+  }
+  .fab-btn i {
+    font-size: 1rem !important;
+  }
+  @media (max-width: 400px) {
+      .fab-btn span { display: none; }
+      .fab-btn { padding: 10px !important; }
   }
 }

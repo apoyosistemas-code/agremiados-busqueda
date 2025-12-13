@@ -79,10 +79,9 @@ require_once "auth.php";
 <body>
 
   <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-4 animate-container">
       <a class="navbar-brand" href="editor.php" title="Reiniciar">
         <img src="assets/logo.png" alt="Logo">
-        <img src="assets/estrella.png" alt="Estrella" style="height: 55px; margin-left: 5px;">
         <span>Gestión de Agremiados</span>
       </a>
       <div class="d-flex gap-2">
@@ -97,7 +96,7 @@ require_once "auth.php";
     </div>
   </nav>
 
-  <div class="container-fluid px-4">
+  <div class="container-fluid px-4 animate-container">
     <div class="card card-custom p-3 mt-3">
       <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
         <div class="d-flex gap-2 flex-grow-1 position-relative" style="max-width: 600px;">
@@ -509,5 +508,19 @@ require_once "auth.php";
       finally { document.getElementById('loading').style.display = 'none'; }
     }
   </script>
+
+<script>
+  // Script para activar la animación de entrada
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('.animate-container');
+    if (container) {
+      // Pequeño retraso para asegurar que el estado inicial se renderice
+      setTimeout(() => {
+        container.classList.add('show');
+      }, 50);
+    }
+  });
+</script>
+
 </body>
 </html>

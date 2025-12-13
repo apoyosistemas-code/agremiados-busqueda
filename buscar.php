@@ -207,7 +207,7 @@ function labelize($key, $pretty){
   </main>
 
   <main class="wrap">
-    <section class="results">
+    <section class="results animate-container">
       <?php if (empty($rows)): ?>
         <div class="empty-box">
           <h3>😕 No se encontraron datos</h3>
@@ -296,5 +296,29 @@ function labelize($key, $pretty){
       });
     });
   </script>
+  
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Animación de la cabecera (igual que en el index)
+    const hero = document.querySelector('.hero');
+    if (hero) hero.classList.add('in');
+    
+    // Animación de los resultados
+    const resultsContainer = document.querySelector('.results.animate-container');
+    if (resultsContainer) {
+        setTimeout(() => {
+            resultsContainer.classList.add('show');
+        }, 100); // Un poco más de retraso para que venga después de la cabecera
+    }
+
+    // Animación escalonada de las tarjetas individuales (si las hay)
+    const cards = document.querySelectorAll('.card2');
+    cards.forEach((el, i) => {
+      el.style.transitionDelay = (i * 80) + 'ms';
+      requestAnimationFrame(() => el.classList.add('in'));
+    });
+  });
+</script>
+
 </body>
 </html>
