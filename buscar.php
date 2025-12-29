@@ -281,9 +281,13 @@ function labelize($key, $pretty){
     </section>
   </main>
 
-  <footer class="footer hero-footer">
-    Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.
-  </footer>
+<footer class="footer hero-footer">
+    <div>Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.</div>
+    
+    <div class="eku-logo-container">
+        <img src="assets/logo_eku.png" alt="Powered by EKU BYTE" class="eku-logo">
+    </div>
+</footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

@@ -230,6 +230,7 @@ require_once "auth.php";
            <button type="button" class="btn btn-sm btn-primary w-100" onclick="saveQuickEdit()">Aplicar Cambios</button>
         </div>
       </div>
+
     </div>
   </div>
 
