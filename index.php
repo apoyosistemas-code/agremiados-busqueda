@@ -10,14 +10,12 @@ require_once "auth.php";
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Consulta de Agremiados</title>
   <link rel="icon" type="image/png" href="assets/EstrellaCaj.png">
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=6">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-      /* --- ESTILOS AGREGADOS PARA LA BARRA SUPERIOR Y BOTONES --- */
-      
-      /* Barra de Usuario */
+      /* --- ESTILOS GENERALES Y ESCRITORIO --- */
       .user-bar {
           position: absolute; top: 20px; right: 20px; z-index: 1000;
           display: flex; gap: 10px; align-items: center;
@@ -35,7 +33,7 @@ require_once "auth.php";
       }
       .btn-logout:hover { background: #991b1b; color: white; }
 
-      /* Contenedor de Botones Flotantes */
+      /* Botones Flotantes (Versión PC) */
       .fab-container {
         position: fixed; right: 22px; bottom: 22px; z-index: 9999;
         display: flex; flex-direction: column; gap: 15px; align-items: flex-end;
@@ -51,11 +49,57 @@ require_once "auth.php";
       .fab-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
       .fab-btn i { font-size: 20px; width: 24px; display: flex; justify-content: center; }
 
-      /* Colores Específicos */
       .btn-bday { color: #d9a23e; } .btn-bday:hover { color: #b7862f; border-color: #d9a23e; }
       .btn-editor { color: #12503a; } .btn-editor:hover { color: #0a2a1f; border-color: #12503a; }
       .btn-users { color: #d63384; } .btn-users:hover { color: #a61e61; border-color: #d63384; }
       .btn-audit { color: #6610f2; } .btn-audit:hover { color: #520dc2; border-color: #6610f2; }
+
+      /* --- VERSIÓN CELULAR (CORRECCIÓN ANTI-PANTALLA BLANCA) --- */
+      @media (max-width: 768px) {
+          /* Barra fija abajo */
+          .fab-container {
+              flex-direction: row !important;       
+              right: 0 !important; 
+              left: 0 !important; 
+              bottom: 0 !important;
+              
+              /* ESTAS LÍNEAS EVITAN LA PANTALLA BLANCA: */
+              top: auto !important;          /* No te pegues arriba */
+              height: auto !important;       /* No crezcas al infinito */
+              max-height: 80px !important;   /* Límite estricto de altura */
+              
+              width: 100% !important;
+              background: #ffffff !important;       
+              padding: 5px 0 !important;
+              padding-bottom: env(safe-area-inset-bottom, 5px) !important;
+              justify-content: space-around !important;
+              border-top: 1px solid #e1e1e1;
+              box-shadow: 0 -4px 20px rgba(0,0,0,0.1); 
+              gap: 0 !important;
+          }
+          /* Botones centrados */
+          .fab-btn {
+              min-width: auto !important; width: auto !important;
+              flex-grow: 1 !important; flex-direction: column !important;    
+              justify-content: center !important; align-items: center !important;
+              text-align: center !important;
+              padding: 4px 0 !important;
+              border-radius: 0 !important; box-shadow: none !important; 
+              font-size: 0.65rem !important; line-height: 1.2 !important;
+              gap: 5px !important;
+              background: transparent !important; border: none !important;
+              margin: 0 !important; height: auto !important;
+          }
+          /* Iconos visibles */
+          .fab-btn i {
+              font-size: 1.4rem !important; margin-bottom: 0 !important;
+              display: block !important; width: auto !important;
+          }
+          .fab-btn:active { background-color: #f2f2f2 !important; opacity: 0.7; }
+          
+          /* Espacio para que se vea el footer detrás de la barra */
+          body { padding-bottom: 110px !important; }
+      }
   </style>
 </head>
 <body class="home">
@@ -90,7 +134,7 @@ require_once "auth.php";
         <input type="hidden" name="mode" value="code">
         <div class="hero-input">
           <span class="hero-input-prefix">N°</span>
-          <input type="text" name="q" placeholder="N° de colegiatura (1–4 dígitos)" required inputmode="numeric" pattern="[0-9]{1,4}">
+          <input type="text" name="q" placeholder="N° de colegiatura" required inputmode="numeric" pattern="[0-9]{1,4}">
         </div>
         <button type="submit" class="btn btn-primary">Buscar</button>
       </form>
@@ -99,7 +143,7 @@ require_once "auth.php";
         <input type="hidden" name="mode" value="name">
         <div class="hero-input ac-wrap">
           <span class="hero-input-prefix">👤</span>
-          <input id="nameInput" type="text" name="name" placeholder="Apellidos y nombres (p. ej. VELITA ESPINOZA)" spellcheck="false" autocomplete="off">
+          <input id="nameInput" type="text" name="name" placeholder="Apellidos y nombres..." spellcheck="false" autocomplete="off">
           <div id="acList" class="ac-list" style="display:none;"></div>
         </div>
         <button type="submit" class="btn btn-primary">Buscar</button>
@@ -113,37 +157,31 @@ require_once "auth.php";
   </footer>
 
 <div class="fab-container">
-    
-    <a href="cumpleanos.php" class="fab-btn btn-bday" title="Cumpleaños">
+    <a href="cumpleanos.php" class="fab-btn btn-bday">
         <i class="fa-solid fa-cake-candles"></i>
         <span>Cumpleaños</span>
     </a>
-
-    <a href="editor.php" class="fab-btn btn-editor" title="Editor">
+    <a href="editor.php" class="fab-btn btn-editor">
         <i class="fa-solid fa-screwdriver-wrench"></i>
         <span>Editor</span>
     </a>
-
     <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER'): ?>
-        <a href="usuarios.php" class="fab-btn btn-users" title="Usuarios">
+        <a href="usuarios.php" class="fab-btn btn-users">
             <i class="fa-solid fa-users-gear"></i>
             <span>Usuarios</span>
         </a>
-        <a href="auditoria.php" class="fab-btn btn-audit" title="Auditoría">
+        <a href="auditoria.php" class="fab-btn btn-audit">
             <i class="fa-solid fa-shield-halved"></i>
             <span>Auditoría</span>
         </a>
     <?php endif; ?>
-
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // Animación
   const hero = document.querySelector('.hero');
-  if (hero) hero.classList.add('in');
+  if (hero) hero.classList.add('in'); // Activa la animación
 
-  // Toggle
   const btns = document.querySelectorAll('.toggle-btn');
   const formCode = document.getElementById('form-code');
   const formName = document.getElementById('form-name');
@@ -164,104 +202,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   btns[0].addEventListener('click', () => setMode('code'));
   btns[1].addEventListener('click', () => setMode('name'));
-  setMode('name'); // arranca en nombres
+  setMode('name'); 
 
-  // ===== Autocomplete =====
+  // Autocomplete Básico
   const nameInput = document.getElementById('nameInput');
   const acList = document.getElementById('acList');
   let acAbort = null;
 
-  function escHtml(s){
-    s = (s === undefined || s === null) ? '' : String(s);
-    return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-  function highlight(text, query){
-    const parts = query.trim().split(/\s+/).filter(Boolean);
-    let html = escHtml(text);
-    parts.forEach(p=>{
-      const re = new RegExp('('+p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
-      html = html.replace(re, '<span class="ac-mark">$1</span>');
-    });
-    return html;
-  }
-  function normalizeItem(it){
-    if (typeof it === 'string') return { nombre: it, colegiatura: '', dni: '' };
-    const nombre = it.nombre ?? it.NOMBRE ?? it.NOMBRE_DEL_AGREMIADO ?? '';
-    const coleg  = it.colegiatura ?? it.COLEGIATURA ?? it.code ?? '';
-    const dni    = it.dni ?? it.DNI ?? '';
-    return { nombre, colegiatura: coleg, dni };
-  }
-  function showMsg(msg){
-    acList.innerHTML = `<div class="ac-item"><div class="ac-sub">${escHtml(msg)}</div></div>`;
-    acList.style.display = 'block';
-  }
-  function clearList(){ acList.innerHTML=''; acList.style.display='none'; }
-
   function renderList(items, q){
-    if (!Array.isArray(items)) items = [];
-    const rows = items.map(normalizeItem).filter(r => r.nombre);
-    if (!rows.length) { showMsg('Sin resultados'); return; }
-
-    acList.innerHTML = rows.map(it =>
-      `<button type="button" class="ac-item" data-name="${escHtml(it.nombre)}">
-         <div class="ac-title">${highlight(it.nombre, q)}</div>
-         <div class="ac-sub">#${escHtml(it.colegiatura || '—')} · DNI ${escHtml(it.dni || '—')}</div>
+    if (!Array.isArray(items) || items.length === 0) { 
+        acList.innerHTML = '<div class="ac-item"><div class="ac-sub">Sin resultados</div></div>';
+        acList.style.display = 'block'; 
+        return; 
+    }
+    acList.innerHTML = items.map(it => 
+      `<button type="button" class="ac-item" onclick="selectItem('${it.nombre}')">
+         <div class="ac-title">${it.nombre}</div>
+         <div class="ac-sub">#${it.colegiatura || '—'} · DNI ${it.dni || '—'}</div>
        </button>`
     ).join('');
     acList.style.display = 'block';
-
-    acList.querySelectorAll('.ac-item').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        nameInput.value = btn.dataset.name;
-        clearList();
-        document.getElementById('form-name').submit();
-      });
-    });
   }
 
-  function fetchAC(q){
-    if (acAbort) acAbort.abort();
-    acAbort = new AbortController();
-    showMsg('Buscando…');
-
-    // Nota: Asegúrate de que api_sugerencias.php esté en la misma carpeta
-    fetch('api_sugerencias.php?q=' + encodeURIComponent(q), {
-      signal: acAbort.signal,
-      cache: 'no-store'
-    })
-      .then(async r => {
-        const txt = await r.text();
-        let data = [];
-        try { data = JSON.parse(txt); }
-        catch { console.warn('Autocomplete: respuesta no JSON, usando []', {txt}); data = []; }
-        return data;
-      })
-      .then(data => renderList(data, q))
-      .catch(err => {
-        console.warn('Autocomplete error:', err);
-        showMsg('Sin resultados');
-      });
-  }
+  window.selectItem = function(name) {
+      nameInput.value = name;
+      acList.style.display='none';
+      document.getElementById('form-name').submit();
+  };
 
   if (nameInput){
     nameInput.addEventListener('input', ()=>{
       const v = nameInput.value.trim();
-      if (v.length < 2){ clearList(); return; }
-      fetchAC(v);
+      if (v.length < 2){ acList.style.display='none'; return; }
+      
+      if (acAbort) acAbort.abort();
+      acAbort = new AbortController();
+
+      fetch('api_sugerencias.php?q=' + encodeURIComponent(v), { signal: acAbort.signal })
+      .then(r => r.json())
+      .then(data => renderList(data, v))
+      .catch(e => {});
     });
-    nameInput.addEventListener('blur', ()=>setTimeout(clearList, 120));
-    nameInput.addEventListener('keydown', e => {
-      if (e.key === 'Escape') { clearList(); return; }
-      if (e.key === 'Enter' && acList.style.display === 'block') {
-        const first = acList.querySelector('.ac-item');
-        if (first && first.dataset.name) {
-          e.preventDefault();
-          nameInput.value = first.dataset.name;
-          clearList();
-          document.getElementById('form-name').submit();
-        }
-      }
-    });
+    // Retraso para que el click en el botón funcione antes de cerrar
+    nameInput.addEventListener('blur', ()=>setTimeout(() => acList.style.display='none', 200));
   }
 });
 </script>
