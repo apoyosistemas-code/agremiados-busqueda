@@ -102,6 +102,7 @@ if ($_SESSION['user_role'] !== 'MASTER') {
             <button class="btn btn-primary w-100" onclick="saveUser()">Guardar Usuario</button>
         </div>
       </div>
+      
     </div>
   </div>
 

@@ -10,7 +10,7 @@ require_once "auth.php";
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Consulta de Agremiados</title>
   <link rel="icon" type="image/png" href="assets/EstrellaCaj.png">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=3">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -149,12 +149,9 @@ require_once "auth.php";
         <button type="submit" class="btn btn-primary">Buscar</button>
       </form>
 
+      
     </div>
   </main>
-
-  <footer class="footer hero-footer">
-    Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.
-  </footer>
 
 <div class="fab-container">
     <a href="cumpleanos.php" class="fab-btn btn-bday">
@@ -176,6 +173,14 @@ require_once "auth.php";
         </a>
     <?php endif; ?>
 </div>
+
+<footer class="footer hero-footer">
+    <div>Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.</div>
+    
+    <div class="eku-logo-container">
+        <img src="assets/logo_eku.png" alt="Powered by EKU BYTE" class="eku-logo">
+    </div>
+</footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
