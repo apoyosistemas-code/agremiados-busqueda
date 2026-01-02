@@ -80,44 +80,14 @@ require_once "auth.php";
     #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; }
 
     @media (max-width: 768px) {
-        body {
-            padding-top: 165px; /* Increased padding for taller navbar */
-        }
-        .navbar-custom {
-            height: auto; /* Allow navbar to grow */
-            padding: 1rem;
-        }
-        .navbar-custom .container-fluid {
-            flex-direction: column; /* Stack logo and buttons */
-            gap: 1rem;
-            align-items: center;
-        }
-        .navbar-brand {
-            font-size: 1.1rem;
-        }
-        .navbar-brand img {
-            height: 60px;
-        }
-
-        /* Original styles from cumpleanos.php (excluding conflicting ones) */
-        .card-custom {
-            padding: 1rem !important;
-        }
-        .d-flex.justify-content-between.align-items-center.flex-wrap {
-            flex-direction: column;
-            align-items: stretch !important;
-        }
-        .d-flex.justify-content-between.align-items-center.flex-wrap > div:last-child {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            gap: 0.5rem;
-        }
-        .cumple-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-        }
+        body { padding-top: 165px; }
+        .navbar-custom { height: auto; padding: 1rem; }
+        .navbar-custom .container-fluid { flex-direction: column; gap: 1rem; align-items: center; }
+        .navbar-brand { font-size: 1.1rem; }
+        .navbar-brand img { height: 60px; }
+        .card-custom { padding: 1rem !important; }
+        .cumple-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .actions-col { width: 100%; display: flex; justify-content: flex-end; }
     }
   </style>
 </head>
@@ -198,7 +168,7 @@ require_once "auth.php";
             
             <div class="col-12 col-md-2 text-end order-4 order-md-5">
                 <button class="btn btn-naranja w-100 fw-bold py-2" onclick="copyList()">
-                    <i class="fa-solid fa-copy me-2"></i> COPIAR
+                    <i class="fa-solid fa-copy me-2"></i> LISTA
                 </button>
             </div>
         </div>
@@ -208,14 +178,14 @@ require_once "auth.php";
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h5 class="fw-bold m-0 text-success"><i class="fa-solid fa-paper-plane"></i> Centro de Envíos</h5>
-                <small class="text-muted">Genere las tarjetas primero, revise las vistas previas y luego envíe todo.</small>
+                <small class="text-muted">Genere las tarjetas primero, copie a WhatsApp o envíe por correo.</small>
             </div>
             <div class="d-flex gap-2">
                 <button id="btnGenerarTodo" class="btn btn-outline-success" onclick="iniciarGeneracionMasiva()">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> 1. Generar Vistas Previas
                 </button>
                 <button id="btnEnviarTodo" class="btn btn-secondary" onclick="iniciarEnvioMasivo()" disabled>
-                    <i class="fa-regular fa-paper-plane"></i> 2. Enviar Todos
+                    <i class="fa-regular fa-paper-plane"></i> 2. Enviar Correos
                 </button>
             </div>
         </div>
@@ -242,7 +212,7 @@ require_once "auth.php";
   <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="liveToast" class="toast align-items-center text-bg-success border-0" role="alert">
       <div class="d-flex">
-        <div class="toast-body"><i class="fa-solid fa-check-circle me-2"></i> Copiado al portapapeles</div>
+        <div class="toast-body"><i class="fa-solid fa-check-circle me-2"></i> Acción realizada</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
       </div>
     </div>
@@ -271,45 +241,91 @@ require_once "auth.php";
            <button type="button" class="btn btn-sm btn-primary w-100" onclick="saveQuickEdit()">Aplicar Cambios</button>
         </div>
       </div>
-
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
   <script>
+    /* =========================================
+       LOGICA DE NEGOCIO Y API
+       ========================================= */
     const API = 'api_cumpleanos.php';
     let rawTextToCopy = "";
     let currentList = [];
 
+    // --- 1. UTILS: GENERADOR DE MENSAJES Y COPIADO ---
+    
+    function getMensajeSaludo(nombre) {
+        return `¡Feliz Cumpleaños Dr(a). ${nombre}! 🎂🎉\n\nDesde el Ilustre Colegio de Abogados de Junín le enviamos un cordial saludo, deseándole éxitos en su vida personal y profesional.\n\nAtte.\nJunta Directiva 2024 – 2026`;
+    }
+
+    function showToast(msg) {
+        const toastEl = document.getElementById('liveToast');
+        if(toastEl) {
+             document.querySelector('#liveToast .toast-body').innerHTML = `<i class="fa-solid fa-check-circle me-2"></i> ${msg}`;
+             const toast = new bootstrap.Toast(toastEl); toast.show();
+        }
+    }
+
+    function copiarTextoWsp(nombre) {
+        const texto = getMensajeSaludo(nombre);
+        navigator.clipboard.writeText(texto).then(() => {
+            showToast('Texto copiado al portapapeles');
+        });
+    }
+
+    function abrirWhatsapp(celular, nombre) {
+        if (!celular || celular.length < 9) {
+            alert("Número celular inválido o vacío.");
+            return;
+        }
+        let numero = celular.replace(/\D/g, ''); // Solo números
+        if (!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
+        
+        const texto = encodeURIComponent(getMensajeSaludo(nombre));
+        window.open(`https://wa.me/${numero}?text=${texto}`, '_blank');
+    }
+
+    async function copiarImagenPortapapeles(url) {
+        try {
+            const data = await fetch(url);
+            const blob = await data.blob();
+            await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]);
+            showToast('¡Imagen copiada! (Ctrl+V en WhatsApp)');
+        } catch (err) {
+            console.error(err);
+            alert("No se pudo copiar la imagen automáticamente. Intente 'Clic Derecho > Copiar imagen'.");
+        }
+    }
+
+    // --- 2. INICIALIZACION ---
+
     document.addEventListener('DOMContentLoaded', () => {
-        // 1. Llenar el selector de Días (1 al 31)
+        // Llenar días
         const daySelect = document.getElementById('filterDay');
         for (let i = 1; i <= 31; i++) {
             let opt = document.createElement('option');
-            opt.value = i;
-            opt.innerText = i;
+            opt.value = i; opt.innerText = i;
             daySelect.appendChild(opt);
         }
 
-        // 2. Seleccionar la fecha de HOY por defecto
+        // Sets default date (HOY)
         const today = new Date();
         document.getElementById('filterDay').value = today.getDate();
         document.getElementById('filterMonth').value = today.getMonth() + 1;
-        
         document.getElementById('monthPicker').value = today.getMonth() + 1;
 
-        // 3. Cargar lista
+        // Cargar lista inicial
         loadFromSelects();
     });
 
-    // --- CARGAR DESDE LOS SELECTORES (DÍA - MES) ---
+    // --- 3. CARGA DE DATOS ---
+
     async function loadFromSelects() {
         showLoading(true);
-        
         const d = document.getElementById('filterDay').value;
         const m = document.getElementById('filterMonth').value;
-        
-        // Construimos fecha ficticia YYYY-MM-DD
         const year = new Date().getFullYear();
         const fullDate = `${year}-${m.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
 
@@ -321,7 +337,6 @@ require_once "auth.php";
         showLoading(false);
     }
 
-    // Botón HOY
     async function loadToday() {
         const today = new Date();
         document.getElementById('filterDay').value = today.getDate();
@@ -329,7 +344,6 @@ require_once "auth.php";
         loadFromSelects();
     }
 
-    // Botón Ver Por Mes
     async function loadMonth() {
         showLoading(true);
         const m = document.getElementById('monthPicker').value;
@@ -340,6 +354,8 @@ require_once "auth.php";
         } catch(e) { console.error(e); }
         showLoading(false);
     }
+
+    // --- 4. RENDERIZADO DE TABLA ---
 
     function renderList(data, type) {
         const container = document.getElementById('contenedorLista');
@@ -364,7 +380,7 @@ require_once "auth.php";
         let currentDay = null;
 
         currentList.forEach((item, index) => {
-            // SEPARADOR DE DÍA
+            // Separador de día si es vista mensual
             if (type === 'month' && item.dia !== currentDay) {
                 currentDay = item.dia;
                 container.appendChild(Object.assign(document.createElement('div'), {
@@ -378,24 +394,26 @@ require_once "auth.php";
             div.className = 'cumple-item';
             div.id = `row-${index}`;
             
-            // 1. Estado
-            let statusHtml = `<div id="status-${index}" style="min-width: 40px; margin-right:10px; text-align: center;"><i class="fa-regular fa-circle text-muted small"></i></div>`;
+            // Columna 1: Estado
+            let statusHtml = `<div id="status-${index}" style="min-width: 30px; text-align: center;"><i class="fa-regular fa-circle text-muted small"></i></div>`;
             
-            // 2. Miniatura
+            // Columna 2: Miniatura (Preview)
+            // Aquí se inyectará la imagen y el botón de copiado
             let thumbHtml = `
-                <div id="thumb-${index}" style="width: 60px; height: 40px; background: #eee; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd;">
+                <div id="thumb-${index}" style="width: 70px; height: 50px; background: #eee; border-radius: 4px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #ddd; position: relative;">
                     <i class="fa-regular fa-image text-muted opacity-50"></i>
                 </div>`;
 
-            // 3. Info Principal
-            let nombreDisplay = `${item.nombre} <span class="text-muted fw-normal ms-1" style="font-size: 0.85em;">#${item.col || '---'}</span>`;
+            // Columna 3: Información
+            let nombreClean = item.nombre.replace(/'/g, "\\'"); // Escapar comillas para JS
+            let nombreDisplay = `${item.nombre} <span class="badge bg-light text-dark border ms-1">#${item.col || '---'}</span>`;
 
-            // 4. Selector de Correo
+            // Selector de correos
             let emailDisplay = '';
             if (item.email_gmail && item.email_other) {
                 emailDisplay = `
-                    <select class="form-select form-select-sm py-0 mt-1" style="font-size:0.8rem; width:auto;" onchange="updateEmail(${index}, this.value)">
-                        <option value="${item.email_gmail}" selected>📧 ${item.email_gmail} (Gmail)</option>
+                    <select class="form-select form-select-sm py-0 mt-1" style="font-size:0.75rem; width:auto; border-color:#eee;" onchange="updateEmail(${index}, this.value)">
+                        <option value="${item.email_gmail}" selected>📧 ${item.email_gmail}</option>
                         <option value="${item.email_other}">✉️ ${item.email_other}</option>
                     </select>
                 `;
@@ -406,28 +424,42 @@ require_once "auth.php";
             }
 
             let infoHtml = `
-                <div class="flex-grow-1">
+                <div class="flex-grow-1 ms-3">
                     <div class="fw-bold" style="color: var(--color-texto); font-size: 0.95rem;">${nombreDisplay}</div>
                     <div id="email-container-${index}">${emailDisplay}</div>
                 </div>`;
 
-            // 5. Botones Acción
-            let wspClass = (item.celular && item.celular.length >= 9) ? 'btn-light border text-success' : 'btn-light border text-secondary disabled opacity-50';
-            let wspLink = (item.celular && item.celular.length >= 9) ? `href="https://wa.me/51${item.celular}" target="_blank"` : '';
+            // Columna 4: Botones de Acción
+            // Lógica WhatsApp
+            let hasCel = (item.celular && item.celular.length >= 9);
+            let btnWspClass = hasCel ? 'btn-success' : 'btn-outline-secondary disabled';
             
             let actionHtml = `
-                <div class="d-flex align-items-center gap-2">
-                    <a ${wspLink} id="btn-wsp-${index}" class="btn btn-sm ${wspClass}" title="WhatsApp">
+                <div class="actions-col d-flex align-items-center gap-1">
+                    
+                    <button class="btn btn-sm btn-outline-secondary" 
+                            onclick="copiarTextoWsp('${nombreClean}')" 
+                            title="Copiar texto de saludo">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+
+                    <button class="btn btn-sm ${btnWspClass}" 
+                            onclick="abrirWhatsapp('${item.celular}', '${nombreClean}')" 
+                            id="btn-wsp-${index}"
+                            title="Abrir WhatsApp con mensaje">
                         <i class="fa-brands fa-whatsapp"></i>
-                    </a>
-                    <button class="btn btn-sm btn-light border text-primary" onclick="openQuickEdit(${index})" title="Editar Correo/Celular para este envío">
+                    </button>
+
+                    <button class="btn btn-sm btn-light border text-primary" 
+                            onclick="openQuickEdit(${index})" 
+                            title="Editar Correo/Celular">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
                 </div>
             `;
 
             div.innerHTML = `
-                <div class="d-flex align-items-center gap-2 w-100">
+                <div class="d-flex align-items-center w-100">
                     ${statusHtml}
                     ${thumbHtml}
                     ${infoHtml}
@@ -437,12 +469,13 @@ require_once "auth.php";
             
             container.appendChild(div);
             
-            // Copiar al portapapeles (Solo nombre)
-            rawTextToCopy += `${item.nombre}\n`;
+            // Texto para copiado masivo (solo lista)
+            rawTextToCopy += `${item.nombre} - ${item.celular || 'S/N'}\n`;
         });
     }
 
-    // --- FUNCIONES DE EDICIÓN ---
+    // --- 5. LOGICA DE EDICION RAPIDA ---
+    
     function updateEmail(index, newVal) {
         currentList[index].email_active = newVal;
     }
@@ -464,6 +497,7 @@ require_once "auth.php";
         currentList[index].email_active = newEmail;
         currentList[index].celular = newPhone;
         
+        // Actualizar UI Correo
         const containerEmail = document.getElementById(`email-container-${index}`);
         if(newEmail) {
             containerEmail.innerHTML = `<small class="text-primary fw-bold"><i class="fa-solid fa-envelope me-1"></i>${newEmail} (Editado)</small>`;
@@ -471,15 +505,17 @@ require_once "auth.php";
             containerEmail.innerHTML = `<small class="text-danger fw-bold"><i class="fa-solid fa-ban me-1"></i>Sin correo</small>`;
         }
         
+        // Actualizar UI WhatsApp
         const btnWsp = document.getElementById(`btn-wsp-${index}`);
+        let nombreClean = currentList[index].nombre.replace(/'/g, "\\'");
+        
         if(newPhone && newPhone.length >= 9) {
-            btnWsp.className = 'btn btn-sm btn-light border text-success';
-            btnWsp.href = `https://wa.me/51${newPhone}`;
-            btnWsp.classList.remove('disabled', 'opacity-50');
-            btnWsp.removeAttribute('disabled');
+            btnWsp.className = 'btn btn-sm btn-success';
+            btnWsp.onclick = function() { abrirWhatsapp(newPhone, nombreClean); };
+            btnWsp.classList.remove('disabled');
         } else {
-            btnWsp.className = 'btn btn-sm btn-light border text-secondary disabled opacity-50';
-            btnWsp.removeAttribute('href');
+            btnWsp.className = 'btn btn-sm btn-outline-secondary disabled';
+            btnWsp.onclick = null;
         }
 
         const modalEl = document.getElementById('modalQuickEdit');
@@ -487,7 +523,8 @@ require_once "auth.php";
         modalInstance.hide();
     }
 
-    // --- GENERAR ---
+    // --- 6. GENERACION MASIVA ---
+
     async function iniciarGeneracionMasiva() {
         if(currentList.length === 0) return;
         
@@ -516,10 +553,24 @@ require_once "auth.php";
 
                 if(json.ok) {
                     item.temp_url = json.url;
+                    
+                    // Actualizar Miniatura con la imagen Y el botón de copiar
                     if(thumbEl) {
                         thumbEl.style.cursor = "pointer";
-                        thumbEl.innerHTML = `<img src="${json.url}" style="width:100%; height:100%; object-fit:cover;">`;
-                        thumbEl.onclick = function() { window.open(json.url, '_blank'); }; 
+                        thumbEl.onclick = function() { window.open(json.url, '_blank'); };
+                        
+                        thumbEl.innerHTML = `
+                            <div style="position:relative; width:100%; height:100%;">
+                                <img src="${json.url}" style="width:100%; height:100%; object-fit:cover;">
+                                
+                                <button onclick="event.stopPropagation(); copiarImagenPortapapeles('${json.url}')" 
+                                        class="btn btn-sm btn-light shadow-sm p-0 d-flex align-items-center justify-content-center"
+                                        style="position:absolute; bottom:2px; right:2px; width:22px; height:22px; border-radius:4px; opacity:0.9;" 
+                                        title="Copiar Imagen al Portapapeles">
+                                   <i class="fa-regular fa-copy" style="font-size:10px;"></i>
+                                </button>
+                            </div>
+                        `;
                     }
                     statusEl.innerHTML = '<i class="fa-solid fa-check text-primary small"></i>';
                 } else {
@@ -530,13 +581,15 @@ require_once "auth.php";
             }
         }
         
+        // Habilitar botón de envío
         const btnSend = document.getElementById('btnEnviarTodo');
         if(btnSend){ btnSend.disabled = false; btnSend.className = 'btn btn-success'; }
     }
 
-    // --- ENVIAR ---
+    // --- 7. ENVIO MASIVO ---
+
     async function iniciarEnvioMasivo() {
-        if(!confirm("¿Iniciar envío masivo de correos?")) return;
+        if(!confirm("¿Desea enviar los correos a los destinatarios generados?")) return;
 
         const bar = document.getElementById('progressBar');
         if(bar) { bar.className = 'progress-bar bg-success'; bar.style.width = '0%'; }
@@ -551,8 +604,9 @@ require_once "auth.php";
             if(!statusEl) continue;
             if(bar) bar.style.width = (((i + 1) / currentList.length) * 100) + '%';
 
+            // Validaciones previas
             if (!item.email_active || !item.temp_url) {
-                if(!item.email_active) statusEl.innerHTML = '<span class="badge bg-light text-muted border">FALTA CORREO</span>';
+                if(!item.email_active) statusEl.innerHTML = '<span class="badge bg-light text-muted border" style="font-size:0.6rem">NO MAIL</span>';
                 continue;
             }
 
@@ -575,32 +629,28 @@ require_once "auth.php";
                     errores++;
                     let msgError = "ERROR";
                     let color = "bg-danger";
-                    let detalle = String(json.error).toLowerCase();
+                    let detalle = String(json.error || '').toLowerCase();
 
                     if (detalle.includes('recipients failed') || detalle.includes('invalid address')) {
-                        msgError = "CORREO NO EXISTE";
+                        msgError = "MAIL INVALIDO";
                     } else if (detalle.includes('connect') || detalle.includes('timeout')) {
-                        msgError = "ERROR CONEXIÓN";
+                        msgError = "TIMEOUT";
                         color = "bg-warning text-dark";
                     } else if (detalle.includes('quota') || detalle.includes('limit')) {
-                        msgError = "LÍMITE DIARIO";
+                        msgError = "QUOTA";
                     }
-
-                    statusEl.innerHTML = `<span class="badge ${color}" title="${json.error}" style="font-size:0.7rem;">${msgError}</span>`;
+                    statusEl.innerHTML = `<span class="badge ${color}" title="${json.error}" style="font-size:0.6rem;">${msgError}</span>`;
                 }
             } catch(e) {
                 errores++;
-                statusEl.innerHTML = '<span class="badge bg-danger">ERROR RED</span>';
+                statusEl.innerHTML = '<span class="badge bg-danger" style="font-size:0.6rem">RED</span>';
             }
         }
-        alert(`Proceso finalizado.\n\n✅ Enviados: ${enviados}\n❌ Fallidos: ${errores}`);
+        alert(`Resumen de Envío:\n\n✅ Enviados exitosamente: ${enviados}\n❌ Errores: ${errores}`);
     }
 
     function copyList() {
-        navigator.clipboard.writeText(rawTextToCopy).then(() => {
-            const toastEl = document.getElementById('liveToast');
-            if(toastEl) { const toast = new bootstrap.Toast(toastEl); toast.show(); }
-        });
+        navigator.clipboard.writeText(rawTextToCopy).then(() => showToast('Lista copiada'));
     }
 
     function showLoading(show) {
@@ -609,18 +659,13 @@ require_once "auth.php";
     }
   </script>
 
-<script>
-  // Script para activar la animación de entrada
-  document.addEventListener('DOMContentLoaded', () => {
-    const container = document.querySelector('.animate-container');
-    if (container) {
-      // Pequeño retraso para asegurar que el estado inicial se renderice
-      setTimeout(() => {
-        container.classList.add('show');
-      }, 50);
-    }
-  });
-</script>
+  <script>
+    // Animación de entrada suave
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.querySelector('.animate-container');
+      if (container) setTimeout(() => container.classList.add('show'), 50);
+    });
+  </script>
 
 </body>
 </html>

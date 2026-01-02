@@ -7,7 +7,7 @@ require_once "auth.php";
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Gestión de Agremiados · ICAS</title>
+  <title>Gestión de Agremiados · ICAJ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="assets/EstrellaCaj.png">
   

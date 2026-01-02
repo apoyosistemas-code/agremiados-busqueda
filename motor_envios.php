@@ -143,6 +143,14 @@ if ($action === 'enviar') {
             <p style='text-align: center; color: #888; font-size: 12px; margin-top: 20px;'>
                 Adjunto encontrará su tarjeta de felicitación personalizada.
             </p>
+
+            <div style='text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px dashed #eee;'>
+                <span style='font-size: 13px; color: #999; font-family: sans-serif;'>
+                    Powered by 
+                    <a href='https://ekubyte.com/' target='_blank' style='color: #008191; text-decoration: none; font-weight: bold;'>EKUBYTE</a>
+                </span>
+            </div>
+
         </div>
         ";
         $mail->Body = $body;
