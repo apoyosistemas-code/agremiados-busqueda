@@ -202,7 +202,7 @@ function labelize($key, $pretty){
         <b><?= htmlspecialchars($mode==='name' ? ($nameQ !== '' ? $nameQ : $q) : $q) ?></b>
         · <?= intval($total) ?> coincidencia(s)
       </p>
-      <a href="index.php" class="btn btn-primary">← Nueva consulta</a>
+      <a href="index.php" class="btn-new-query"><i class="fa-solid fa-search"></i> Nueva consulta</a>
     </div>
   </main>
 

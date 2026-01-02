@@ -26,7 +26,7 @@ require_once "auth.php";
         font-family: 'Poppins', sans-serif; 
         background-color: var(--color-fondo);
         color: var(--color-texto);
-        padding-top: 110px; 
+        padding-top: 105px; 
     }
     .navbar-custom { 
         background-color: #ffffff; 
@@ -74,6 +74,53 @@ require_once "auth.php";
     
     .pagination-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
     .page-input { width: 60px; text-align: center; border: 1px solid #ddd; border-radius: 4px; padding: 4px; }
+
+    @media (max-width: 768px) {
+        body {
+            padding-top: 165px; /* Increased padding for taller navbar */
+        }
+        .navbar-custom {
+            height: auto; /* Allow navbar to grow */
+            padding: 1rem;
+        }
+        .navbar-custom .container-fluid {
+            flex-direction: column; /* Stack logo and buttons */
+            gap: 1rem;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 1.1rem;
+        }
+        .navbar-brand img {
+            height: 60px;
+        }
+        .d-flex.flex-wrap.gap-3.justify-content-between.align-items-center {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .d-flex.flex-wrap.gap-3.justify-content-between.align-items-center .btn-naranja {
+            width: 100%;
+            justify-content: center;
+        }
+        .pagination-controls {
+            gap: 0.5rem; /* Allow items to wrap naturally */
+        }
+        .pagination-controls .vr {
+            display: none; /* Hide vertical rule on mobile */
+        }
+        .table, .table-responsive {
+            font-size: 0.8rem;
+        }
+        .table th, .table td {
+            padding: 0.5rem 0.4rem;
+        }
+        .ps-4 {
+            padding-left: 0.8rem !important;
+        }
+        .pe-4 {
+            padding-right: 0.8rem !important;
+        }
+    }
   </style>
 </head>
 <body>
@@ -86,18 +133,15 @@ require_once "auth.php";
       </a>
       <div class="d-flex gap-2">
         <a href="editor.php" class="btn btn-sm btn-light border text-muted" title="Recargar"><i class="fa-solid fa-rotate-right"></i></a>
-        <a href="index.php" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
-            <i class="fa-solid fa-right-from-bracket"></i> Salir
+        <a href="index.php" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1 fw-medium px-3">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Inicio
         </a>
-        <?php if(isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'MASTER'): ?>
-            <a href="auditoria.php" class="btn btn-sm btn-dark ms-2"><i class="fa-solid fa-shield-cat"></i> Auditoría</a>
-        <?php endif; ?>
       </div>
     </div>
   </nav>
 
   <div class="container-fluid px-4 animate-container">
-    <div class="card card-custom p-3 mt-3">
+    <div class="card card-custom p-3">
       <div class="d-flex flex-wrap gap-3 justify-content-between align-items-center">
         <div class="d-flex gap-2 flex-grow-1 position-relative" style="max-width: 600px;">
           <input type="text" id="q" class="form-control rounded-pill" placeholder="Buscar (DNI, Nombre, Colegiatura)..." autocomplete="off">

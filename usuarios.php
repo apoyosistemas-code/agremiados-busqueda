@@ -20,13 +20,72 @@ if ($_SESSION['user_role'] !== 'MASTER') {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    body { font-family: 'Poppins', sans-serif; background: #e5e7eb; padding-top: 100px; }
-    .navbar-custom { background: #fff; height: 90px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    .navbar-brand { font-weight: 600; color: #12503a; font-size: 1.3rem; display: flex; align-items: center; gap: 15px; }
+    :root {
+        --color-verde: #12503a; 
+    }
+    body { 
+        font-family: 'Poppins', sans-serif; 
+        background: #e5e7eb;
+        padding-top: 105px; /* Consistent padding */
+    }
+    .navbar-custom { 
+        background: #fff; 
+        height: 90px; 
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .navbar-brand { 
+        font-weight: 600; 
+        color: var(--color-verde); 
+        font-size: 1.3rem; 
+        display: flex; 
+        align-items: center; 
+        gap: 15px; 
+    }
     .navbar-brand img { height: 70px; }
-    .card-custom { border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .card-custom { 
+        border: none; 
+        border-radius: 12px; 
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        margin-bottom: 20px; /* Added for consistency */
+    }
     .btn-pink { background: #d63384; color: white; border: none; }
     .btn-pink:hover { background: #a61e61; color: white; }
+
+    @media (max-width: 768px) {
+        body {
+            padding-top: 165px; /* Make space for taller navbar */
+        }
+        .navbar-custom {
+            height: auto; /* Allow navbar to grow */
+            padding: 1rem;
+        }
+        .navbar-custom .container-fluid {
+            flex-direction: column; /* Stack logo and buttons */
+            gap: 1rem;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 1.1rem;
+        }
+        .navbar-brand img {
+            height: 60px;
+        }
+        .d-flex.justify-content-between.align-items-center {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1rem;
+        }
+        .d-flex.justify-content-between.align-items-center h4 {
+            text-align: center;
+            font-size: 1.2rem; /* Adjust heading size */
+        }
+        .d-flex.justify-content-between.align-items-center .btn-pink {
+            width: 100%;
+        }
+        .table {
+            font-size: 0.8rem;
+        }
+    }
   </style>
 </head>
 <body>
@@ -37,7 +96,9 @@ if ($_SESSION['user_role'] !== 'MASTER') {
         <img src="assets/logo.png" alt="Logo">
         <span>Gestión de Usuarios</span>
       </a>
-      <a href="index.php" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-arrow-left"></i> Volver</a>
+      <div class="d-flex gap-2">
+        <a href="index.php" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Volver al Inicio</a>
+      </div>
     </div>
   </nav>
 

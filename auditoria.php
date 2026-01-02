@@ -27,36 +27,67 @@ $res = $conn->query($sql);
   <style>
     :root {
         --color-verde: #12503a; 
-        --color-naranja: #E79E1E;
         --color-fondo: #e5e7eb;
-        --color-texto: #333333;
     }
     body { 
         font-family: 'Poppins', sans-serif; 
         background-color: var(--color-fondo);
-        color: var(--color-texto);
-        padding-top: 110px; /* Mismo espaciado superior */
+        color: #333;
+        padding-top: 105px; /* Consistent padding */
     }
-    
-    /* Navbar Unificada */
     .navbar-custom { 
         background-color: #ffffff; 
         box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         height: 90px;
     }
     .navbar-brand {
-        font-weight: 600; color: var(--color-verde); font-size: 1.3rem;
-        display: flex; align-items: center; gap: 15px;
+        font-weight: 600; 
+        color: var(--color-verde); 
+        font-size: 1.3rem;
+        display: flex; 
+        align-items: center; 
+        gap: 15px;
     }
     .navbar-brand img { height: 70px; width: auto; }
-
-    /* Tarjeta estilo panel */
     .card-custom { 
-        border: none; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
-        background: white; margin-bottom: 20px;
+        border: none; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03); 
+        background: white; 
+        margin-bottom: 20px;
     }
-    
-    .badge-action { font-size: 0.75rem; padding: 6px 10px; border-radius: 4px; }
+    .badge-action { 
+        font-size: 0.75rem; 
+        padding: 6px 10px; 
+        border-radius: 4px; 
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding-top: 165px; /* Make space for taller navbar */
+        }
+        .navbar-custom {
+            height: auto; /* Allow navbar to grow */
+            padding: 1rem;
+        }
+        .navbar-custom .container-fluid {
+            flex-direction: column; /* Stack logo and buttons */
+            gap: 1rem;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 1.1rem;
+        }
+        .navbar-brand img {
+            height: 60px;
+        }
+        .card-custom {
+            padding: 1rem !important;
+        }
+        .table {
+            font-size: 0.8rem;
+        }
+    }
   </style>
 </head>
 <body>

@@ -25,7 +25,7 @@ require_once "auth.php";
         font-family: 'Poppins', sans-serif; 
         background-color: var(--color-fondo);
         color: var(--color-texto);
-        padding-top: 110px;
+        padding-top: 105px;
     }
     .navbar-custom { 
         background-color: #ffffff; 
@@ -78,6 +78,47 @@ require_once "auth.php";
         border-left: 4px solid var(--color-verde);
     }
     #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; }
+
+    @media (max-width: 768px) {
+        body {
+            padding-top: 165px; /* Increased padding for taller navbar */
+        }
+        .navbar-custom {
+            height: auto; /* Allow navbar to grow */
+            padding: 1rem;
+        }
+        .navbar-custom .container-fluid {
+            flex-direction: column; /* Stack logo and buttons */
+            gap: 1rem;
+            align-items: center;
+        }
+        .navbar-brand {
+            font-size: 1.1rem;
+        }
+        .navbar-brand img {
+            height: 60px;
+        }
+
+        /* Original styles from cumpleanos.php (excluding conflicting ones) */
+        .card-custom {
+            padding: 1rem !important;
+        }
+        .d-flex.justify-content-between.align-items-center.flex-wrap {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .d-flex.justify-content-between.align-items-center.flex-wrap > div:last-child {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 0.5rem;
+        }
+        .cumple-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
   </style>
 </head>
 <body>
@@ -90,7 +131,7 @@ require_once "auth.php";
       </a>
       <div class="d-flex gap-2">
         <a href="index.php" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
-            <i class="fa-solid fa-arrow-left"></i> Volver
+            <i class="fa-solid fa-arrow-left"></i> Volver al Inicio
         </a>
       </div>
     </div>
@@ -100,7 +141,7 @@ require_once "auth.php";
     
     <div class="card card-custom p-4">
         <div class="row g-3 align-items-end">
-            <div class="col-md-4"> 
+            <div class="col-6 col-md-4 order-1 order-md-1"> 
                 <label class="form-label text-muted small fw-bold">Ver Por Día</label>
                 <div class="input-group">
                     <select id="filterDay" class="form-select" style="max-width: 80px; background-color: #fff;"></select>
@@ -126,15 +167,15 @@ require_once "auth.php";
                 </div>
             </div>
             
-            <div class="col-md-2">
+            <div class="col-12 col-md-2 order-3 order-md-2">
                  <button class="btn btn-verde w-100" onclick="loadToday()">
                     <i class="fa-solid fa-calendar-day me-2"></i> HOY
                  </button>
             </div>
 
-            <div class="col-md-1 text-center text-muted fw-bold align-self-center">O</div>
+            <div class="col-md-1 text-center text-muted fw-bold align-self-center order-md-3 d-none d-md-block">O</div>
 
-            <div class="col-md-3">
+            <div class="col-6 col-md-3 order-2 order-md-4">
                 <label class="form-label text-muted small fw-bold">Ver Por Mes</label>
                 <div class="input-group">
                     <select id="monthPicker" class="form-select">
@@ -155,7 +196,7 @@ require_once "auth.php";
                 </div>
             </div>
             
-            <div class="col-md-2 text-end">
+            <div class="col-12 col-md-2 text-end order-4 order-md-5">
                 <button class="btn btn-naranja w-100 fw-bold py-2" onclick="copyList()">
                     <i class="fa-solid fa-copy me-2"></i> COPIAR
                 </button>
