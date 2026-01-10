@@ -1,5 +1,7 @@
 <?php
+// 1. SEGURIDAD: Bloqueo de acceso directo
 require_once "conexion.php";
+require_once "auth.php"; 
 
 /* ========= Entrada ========= */
 $mode   = $_GET['mode'] ?? 'code';          // 'code' (colegiatura) | 'name' (apellidos y nombres)
@@ -15,26 +17,31 @@ $params = [];
 $types  = '';
 
 if ($mode === 'name') {
-  // Búsqueda por apellidos y nombres
+  // Búsqueda por apellidos y nombres con FULLTEXT
   $qname = $nameQ !== '' ? $nameQ : $q;
   $qname = trim($qname);
   if ($qname !== '') {
-    // Divide por espacios y exige que todos los tokens aparezcan
+    // Prepara para modo booleano: +palabra1 +palabra2...
     $tokens = preg_split('/\s+/', $qname, -1, PREG_SPLIT_NO_EMPTY);
-    $clauses = [];
+    $search_str = '';
     foreach ($tokens as $t) {
-      $clauses[] = "NOMBRE_DEL_AGREMIADO LIKE ?";
-      $params[]  = "%$t%";
-      $types    .= 's';
+      $search_str .= "+$t ";
     }
-    if ($clauses) $where = implode(' AND ', $clauses);
+    $search_str = trim($search_str);
+
+    if ($search_str) {
+      $where = "MATCH(NOMBRE_DEL_AGREMIADO) AGAINST(? IN BOOLEAN MODE)";
+      $params[] = $search_str;
+      $types .= 's';
+    }
   }
 } else {
   // Búsqueda por colegiatura (default)
   $code = $q !== '' ? $q : $nameQ;
   $code = trim($code);
   if ($code !== '') {
-    $where = "COLEGIATURA LIKE CONCAT('%', ?, '%')";
+    // LIKE por comienzo de string, más eficiente con índice
+    $where = "CAST(COLEGIATURA AS CHAR) LIKE CONCAT(?, '%')";
     $params[] = $code;
     $types    .= 's';
   }
@@ -144,9 +151,43 @@ function labelize($key, $pretty){
   <title>Resultados · Sistema de Consulta de Agremiados</title>
   <link rel="stylesheet" href="style.css?v=4">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Estilos para los botones naranjas modernos */
+    .btn-action {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background-color: #E79E1E; /* Naranja corporativo */
+        color: white; padding: 10px 15px; border-radius: 8px;
+        text-decoration: none; font-weight: 500; font-size: 0.9rem;
+        transition: background 0.2s; border: none; flex: 1; /* Ocupar espacio igual */
+        white-space: nowrap;
+    }
+    .btn-action:hover { background-color: #cf8d1a; color: white; }
+    
+    .btn-disabled-modern {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        background-color: #f3f4f6; color: #9ca3af; padding: 10px 15px;
+        border-radius: 8px; font-weight: 500; font-size: 0.9rem;
+        border: 1px solid #e5e7eb; flex: 1; cursor: not-allowed;
+        white-space: nowrap;
+    }
+    
+    /* Contenedor de acciones: LADO A LADO */
+    .actions2 { 
+        display: flex; 
+        gap: 10px; 
+        margin-top: 15px; 
+        flex-direction: row; /* Fuerza horizontal */
+    }
+    
+    /* Responsivo: en celulares muy pequeños, apilar si no caben */
+    @media (max-width: 480px) {
+        .actions2 { flex-direction: column; }
+    }
+  </style>
 </head>
 <body class="home results-compact">
-  <!-- HERO compacto -->
   <main class="hero-wrap">
     <div class="hero">
       <?php
@@ -161,12 +202,12 @@ function labelize($key, $pretty){
         <b><?= htmlspecialchars($mode==='name' ? ($nameQ !== '' ? $nameQ : $q) : $q) ?></b>
         · <?= intval($total) ?> coincidencia(s)
       </p>
-      <a href="index.php" class="btn btn-primary">← Nueva consulta</a>
+      <a href="index.php" class="btn-new-query"><i class="fa-solid fa-search"></i> Nueva consulta</a>
     </div>
   </main>
 
   <main class="wrap">
-    <section class="results">
+    <section class="results animate-container">
       <?php if (empty($rows)): ?>
         <div class="empty-box">
           <h3>😕 No se encontraron datos</h3>
@@ -205,17 +246,23 @@ function labelize($key, $pretty){
 
             <div class="actions2">
               <?php if (has_link($recibo)): ?>
-                <a href="<?= htmlspecialchars($recibo) ?>" target="_blank" class="btn btn-primary">📄 Foto de Recibo</a>
+                <a href="<?= htmlspecialchars($recibo) ?>" target="_blank" class="btn-action">
+                    <i class="fa-solid fa-file-invoice"></i> Foto de Recibo
+                </a>
               <?php else: ?>
-                <button class="btn btn-disabled" disabled>📄 Foto de Recibo</button>
-                <div class="hint">Archivo no encontrado</div>
+                <div class="btn-disabled-modern">
+                    <i class="fa-solid fa-file-invoice"></i> Sin Recibo
+                </div>
               <?php endif; ?>
 
               <?php if (has_link($ficha)): ?>
-                <a href="<?= htmlspecialchars($ficha) ?>" target="_blank" class="btn btn-primary">🧾 Ficha Personal</a>
+                <a href="<?= htmlspecialchars($ficha) ?>" target="_blank" class="btn-action">
+                    <i class="fa-solid fa-id-card"></i> Ficha Personal
+                </a>
               <?php else: ?>
-                <button class="btn btn-disabled" disabled>🧾 Ficha Personal</button>
-                <div class="hint">Archivo no encontrado</div>
+                <div class="btn-disabled-modern">
+                    <i class="fa-solid fa-id-card"></i> Sin Ficha
+                </div>
               <?php endif; ?>
             </div>
           </article>
@@ -234,9 +281,13 @@ function labelize($key, $pretty){
     </section>
   </main>
 
-  <footer class="footer hero-footer">
-    Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.
-  </footer>
+<footer class="footer hero-footer">
+    <div>Colegio de Abogados de Junín © 2009–2025. Todos los derechos reservados.</div>
+    
+    <div class="eku-logo-container">
+        <img src="assets/logo_eku.png" alt="Powered by EKU BYTE" class="eku-logo">
+    </div>
+</footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -249,5 +300,29 @@ function labelize($key, $pretty){
       });
     });
   </script>
+  
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Animación de la cabecera (igual que en el index)
+    const hero = document.querySelector('.hero');
+    if (hero) hero.classList.add('in');
+    
+    // Animación de los resultados
+    const resultsContainer = document.querySelector('.results.animate-container');
+    if (resultsContainer) {
+        setTimeout(() => {
+            resultsContainer.classList.add('show');
+        }, 100); // Un poco más de retraso para que venga después de la cabecera
+    }
+
+    // Animación escalonada de las tarjetas individuales (si las hay)
+    const cards = document.querySelectorAll('.card2');
+    cards.forEach((el, i) => {
+      el.style.transitionDelay = (i * 80) + 'ms';
+      requestAnimationFrame(() => el.classList.add('in'));
+    });
+  });
+</script>
+
 </body>
 </html>

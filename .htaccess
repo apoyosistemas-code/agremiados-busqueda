@@ -1,0 +1,28 @@
+# 1. EVITAR QUE LISTEN TUS ARCHIVOS
+# Si alguien entra a una carpeta sin index.php, no verá la lista de archivos.
+Options -Indexes
+
+# 2. PROTEGER ARCHIVOS SENSIBLES
+# Bloquea acceso directo a la base de datos, configuración y al propio htaccess
+<FilesMatch "^(config\.php|agremiados_db\.sql|\.htaccess|\.git)">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# 3. SEGURIDAD DE CABECERAS (Headers)
+# Evita que tu web se cargue dentro de un iframe en otro sitio (Clickjacking)
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# 4. FORZAR HTTPS (Opcional pero recomendado)
+# Descomenta las líneas de abajo si tu hosting tiene certificado SSL (el candadito)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 5. PERSONALIZAR ERRORES (Opcional)
+# Si alguien intenta entrar a algo prohibido, lo manda al login
+ErrorDocument 403 /login.php
+ErrorDocument 404 /index.php

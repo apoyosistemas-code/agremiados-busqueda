@@ -23,27 +23,27 @@ $out = [];
 try {
   if ($q !== '' && isset($conn) && $conn instanceof mysqli) {
 
-    // Partir en palabras y exigir que todas aparezcan
+    // Prepara para modo booleano: +palabra1 +palabra2*
     $parts = preg_split('/\s+/', $q, -1, PREG_SPLIT_NO_EMPTY);
-    $where = [];
-    $types = '';
-    $vals  = [];
-
-    foreach ($parts as $p) {
-      $where[] = "NOMBRE_DEL_AGREMIADO COLLATE utf8mb4_spanish_ci LIKE CONCAT('%', ?, '%')";
-      $types   .= 's';
-      $vals[]   = $p;
+    $search_str = '';
+    if ($parts) {
+        foreach (array_slice($parts, 0, -1) as $p) {
+            $search_str .= "+$p ";
+        }
+        $last_part = end($parts);
+        $search_str .= "+$last_part*";
     }
+    $search_str = trim($search_str);
 
     $sql = "SELECT NOMBRE_DEL_AGREMIADO, COLEGIATURA, DNI
             FROM agremiados
-            WHERE " . implode(' AND ', $where) . "
+            WHERE MATCH(NOMBRE_DEL_AGREMIADO) AGAINST(? IN BOOLEAN MODE)
             ORDER BY NOMBRE_DEL_AGREMIADO ASC
             LIMIT 8";
 
     $stmt = $conn->prepare($sql);
     if ($stmt) {
-      $stmt->bind_param($types, ...$vals);
+      $stmt->bind_param('s', $search_str);
       $stmt->execute();
       $res = $stmt->get_result();
 
